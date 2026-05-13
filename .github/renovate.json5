@@ -4,6 +4,15 @@
     "config:best-practices",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
+  // requirements.oldest.txt pins exist to test against the oldest
+  // supported versions and must not be auto-updated.
+  "ignorePaths": ["**/requirements.oldest.txt"],
+  "pip_requirements": {
+    // Default pip_requirements fileMatch only allows [\w-]* between
+    // "requirements" and ".txt", so per-instrumentation
+    // requirements.latest.txt files are skipped without this.
+    "managerFilePatterns": ["/(^|/)requirements\\.latest\\.txt$/"]
+  },
   "packageRules": [
     {
       "groupName": "all patch versions",

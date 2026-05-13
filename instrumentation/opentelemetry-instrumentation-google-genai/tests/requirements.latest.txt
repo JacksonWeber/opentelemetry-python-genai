@@ -37,14 +37,9 @@
 # This variant of the requirements aims to test the system using
 # the newest supported version of external dependencies.
 
-pytest==7.4.4
-pytest-asyncio==0.21.0
-pytest-vcr==1.0.2
-
 google-auth==2.50.0
 
-google-genai==1.47.0; python_version < "3.10"
-google-genai==1.75.0; python_version >= "3.10"
+google-genai==1.75.0
 
 # Install locally from the folder. This path is relative to the
 # root directory, given invocation from "tox" at root level.
