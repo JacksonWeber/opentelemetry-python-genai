@@ -38,9 +38,7 @@ API
 
 from typing import Any, Collection
 
-from wrapt import (
-    wrap_function_wrapper,  # pyright: ignore[reportUnknownVariableType]
-)
+from wrapt import wrap_function_wrapper
 
 from opentelemetry.instrumentation.instrumentor import BaseInstrumentor
 from opentelemetry.instrumentation.utils import unwrap

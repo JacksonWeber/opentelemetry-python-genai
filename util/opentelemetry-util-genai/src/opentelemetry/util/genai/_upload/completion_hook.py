@@ -134,7 +134,8 @@ class UploadCompletionHook(CompletionHook):
         lru_cache_max_size: int = 1024,
     ) -> None:
         self._max_queue_size = max_queue_size
-        self._fs, base_path = fsspec.url_to_fs(base_path)
+        # fsspec.url_to_fs is poorly typed (returns tuple[Any, Unknown]).
+        self._fs, base_path = fsspec.url_to_fs(base_path)  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
         self._base_path = self._fs.unstrip_protocol(base_path)
         self.lru_dict: OrderedDict[str, bool] = OrderedDict()
         self.lru_cache_max_size = lru_cache_max_size
@@ -165,7 +166,7 @@ class UploadCompletionHook(CompletionHook):
         # Try to delete the file.. But we don't explicitly ask people to grant the GCS delete IAM permission in our
         # docs, so if delete fails just leave the file..
         try:
-            self._fs.rm_file(test_path)  # pyright: ignore[reportUnknownMemberType]
+            self._fs.rm_file(test_path)
         except Exception:  # pylint: disable=broad-exception-caught
             pass
 
