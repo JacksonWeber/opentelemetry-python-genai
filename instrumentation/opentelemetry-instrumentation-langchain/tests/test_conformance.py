@@ -20,8 +20,6 @@ from opentelemetry.test_util_genai.conformance import (  # noqa: E402
 
 from .conformance.inference import InferenceScenario
 
-pytestmark = pytest.mark.conformance
-
 
 @pytest.mark.parametrize(
     "scenario",

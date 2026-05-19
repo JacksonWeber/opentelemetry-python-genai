@@ -119,10 +119,10 @@ via Weaver live-check. Each scenario module defines a subclass of
 `expected_spans`, `expected_metrics`, and implements
 `run(*, tracer_provider, meter_provider, logger_provider, vcr)`.
 
-`tests/test_conformance.py` must set `pytestmark = pytest.mark.conformance` at
-module level.
-
-Run via `tox -e py312-test-instrumentation-<pkg>-conformance`.
+Run via `tox -e py312-test-instrumentation-<pkg>-conformance`. The
+`*-conformance` tox envs target `tests/test_conformance.py` directly; the
+regular `*-{oldest,latest}` envs `--ignore` it so they don't need the
+OTLP/gRPC exporter or `weaver_live_check`.
 
 The parallel PR-review rules live in
 [`.github/instructions/instrumentation.instructions.md`](.github/instructions/instrumentation.instructions.md)

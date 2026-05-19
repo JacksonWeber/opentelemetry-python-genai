@@ -21,8 +21,6 @@ from opentelemetry.test_util_genai.conformance import (  # noqa: E402
 from .conformance.inference import InferenceScenario
 from .conformance.tool_calling import ToolCallingScenario
 
-pytestmark = pytest.mark.conformance
-
 _LEGACY_SYSTEM_SKIP = pytest.mark.skip(
     reason="anthropic emits legacy gen_ai.system in experimental mode"
 )

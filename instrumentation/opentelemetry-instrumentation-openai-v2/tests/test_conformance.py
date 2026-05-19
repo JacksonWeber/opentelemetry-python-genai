@@ -27,8 +27,6 @@ from .conformance.embedding import EmbeddingScenario
 from .conformance.inference import InferenceScenario
 from .conformance.tool_calling import ToolCallingScenario
 
-pytestmark = pytest.mark.conformance
-
 
 @pytest.mark.parametrize(
     "scenario",
