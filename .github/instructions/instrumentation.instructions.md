@@ -86,4 +86,12 @@ New instrumentations must ship a minimal example under the package's `examples/`
 - Cover which part of the GenAI semconv the change implements or follows (when applicable) and
   how instrumentations should consume it.
 
+## 8. Package naming and versioning
+
+- Instrumentation packages must be named `opentelemetry-instrumentation-genai-{lib}` and import
+  as `opentelemetry.instrumentation.genai.{lib}` (`opentelemetry-instrumentation-google-genai`
+  is a pre-existing exception that keeps its historical name).
+- Versions use the OpenTelemetry beta versioning format `MAJOR.MINORbN` (e.g. `1.0b0`);
+  `version.py` carries a `.dev` suffix during development.
+
 See also [AGENTS.md](../../AGENTS.md) for general repo rules.

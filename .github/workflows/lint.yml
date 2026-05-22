@@ -24,8 +24,8 @@ env:
 
 jobs:
 
-  lint-instrumentation-openai-v2:
-    name: instrumentation-openai-v2
+  lint-instrumentation-genai-openai:
+    name: instrumentation-genai-openai
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -41,10 +41,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e lint-instrumentation-openai-v2
+        run: uvx --with tox-uv tox -e lint-instrumentation-genai-openai
 
-  lint-instrumentation-openai_agents-v2:
-    name: instrumentation-openai_agents-v2
+  lint-instrumentation-genai-openai_agents:
+    name: instrumentation-genai-openai_agents
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -60,7 +60,7 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e lint-instrumentation-openai_agents-v2
+        run: uvx --with tox-uv tox -e lint-instrumentation-genai-openai_agents
 
   lint-instrumentation-google-genai:
     name: instrumentation-google-genai
@@ -81,8 +81,8 @@ jobs:
       - name: Run tests
         run: uvx --with tox-uv tox -e lint-instrumentation-google-genai
 
-  lint-instrumentation-anthropic:
-    name: instrumentation-anthropic
+  lint-instrumentation-genai-anthropic:
+    name: instrumentation-genai-anthropic
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -98,10 +98,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e lint-instrumentation-anthropic
+        run: uvx --with tox-uv tox -e lint-instrumentation-genai-anthropic
 
-  lint-instrumentation-claude-agent-sdk:
-    name: instrumentation-claude-agent-sdk
+  lint-instrumentation-genai-claude-agent-sdk:
+    name: instrumentation-genai-claude-agent-sdk
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -117,10 +117,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e lint-instrumentation-claude-agent-sdk
+        run: uvx --with tox-uv tox -e lint-instrumentation-genai-claude-agent-sdk
 
-  lint-instrumentation-langchain:
-    name: instrumentation-langchain
+  lint-instrumentation-genai-langchain:
+    name: instrumentation-genai-langchain
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -136,10 +136,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e lint-instrumentation-langchain
+        run: uvx --with tox-uv tox -e lint-instrumentation-genai-langchain
 
-  lint-instrumentation-weaviate:
-    name: instrumentation-weaviate
+  lint-instrumentation-genai-weaviate-client:
+    name: instrumentation-genai-weaviate-client
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -155,7 +155,7 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e lint-instrumentation-weaviate
+        run: uvx --with tox-uv tox -e lint-instrumentation-genai-weaviate-client
 
   lint-util-genai:
     name: util-genai

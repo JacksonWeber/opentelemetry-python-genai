@@ -38,9 +38,17 @@ comment - not in the PR description.
 - `util/opentelemetry-test-util-genai/` - shared test fixtures and assertion helpers
   (workspace-internal, not published)
 
-Instrumentation packages live under `src/opentelemetry/instrumentation/{name}/` with their own
-`pyproject.toml` and `tests/`. The util package follows the equivalent layout under
+Instrumentation packages live under `src/opentelemetry/instrumentation/genai/{name}/` with their
+own `pyproject.toml` and `tests/`. The util package follows the equivalent layout under
 `src/opentelemetry/util/genai/`.
+
+## Package naming and versioning
+
+- Instrumentation packages are named `opentelemetry-instrumentation-genai-{lib}` and import as
+  `opentelemetry.instrumentation.genai.{lib}` — e.g. `opentelemetry-instrumentation-genai-anthropic`
+  imports `opentelemetry.instrumentation.genai.anthropic`. 
+- Packages use the OpenTelemetry beta versioning format `MAJOR.MINORbN` (e.g. `1.0b0`). `version.py` carries a `.dev`
+  suffix during development (`1.0b0.dev`); the release workflow drops it.
 
 ## Commands
 
@@ -52,7 +60,7 @@ uv sync --frozen --all-packages
 uv run pre-commit run ruff --all-files
 
 # Test a specific package (append -oldest, -latest for version variants)
-uv run tox -e py312-test-instrumentation-openai-v2-oldest
+uv run tox -e py312-test-instrumentation-genai-openai-oldest
 
 # Type check
 uv run tox -e typecheck
@@ -119,7 +127,7 @@ via Weaver live-check. Each scenario module defines a subclass of
 `expected_spans`, `expected_metrics`, and implements
 `run(*, tracer_provider, meter_provider, logger_provider, vcr)`.
 
-Run via `tox -e py312-test-instrumentation-<pkg>-conformance`. The
+Run via `tox -e py312-test-instrumentation-genai-<lib>-conformance`. The
 `*-conformance` tox envs target `tests/test_conformance.py` directly; the
 regular `*-{oldest,latest}` envs `--ignore` it so they don't need the
 OTLP/gRPC exporter or `weaver_live_check`.

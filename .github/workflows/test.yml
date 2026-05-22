@@ -24,8 +24,8 @@ env:
 
 jobs:
 
-  py310-test-instrumentation-openai-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai-v2-oldest 3.10 Ubuntu
+  py310-test-instrumentation-genai-openai-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai-oldest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -41,10 +41,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-openai-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-openai-oldest -- -ra
 
-  py310-test-instrumentation-openai-v2-latest_ubuntu-latest:
-    name: instrumentation-openai-v2-latest 3.10 Ubuntu
+  py310-test-instrumentation-genai-openai-latest_ubuntu-latest:
+    name: instrumentation-genai-openai-latest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -60,10 +60,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-openai-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-openai-latest -- -ra
 
-  py311-test-instrumentation-openai-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai-v2-oldest 3.11 Ubuntu
+  py311-test-instrumentation-genai-openai-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai-oldest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -79,10 +79,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-openai-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-openai-oldest -- -ra
 
-  py311-test-instrumentation-openai-v2-latest_ubuntu-latest:
-    name: instrumentation-openai-v2-latest 3.11 Ubuntu
+  py311-test-instrumentation-genai-openai-latest_ubuntu-latest:
+    name: instrumentation-genai-openai-latest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -98,10 +98,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-openai-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-openai-latest -- -ra
 
-  py312-test-instrumentation-openai-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai-v2-oldest 3.12 Ubuntu
+  py312-test-instrumentation-genai-openai-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai-oldest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -117,10 +117,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-openai-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-openai-oldest -- -ra
 
-  py312-test-instrumentation-openai-v2-latest_ubuntu-latest:
-    name: instrumentation-openai-v2-latest 3.12 Ubuntu
+  py312-test-instrumentation-genai-openai-latest_ubuntu-latest:
+    name: instrumentation-genai-openai-latest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -136,10 +136,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-openai-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-openai-latest -- -ra
 
-  py313-test-instrumentation-openai-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai-v2-oldest 3.13 Ubuntu
+  py313-test-instrumentation-genai-openai-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai-oldest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -155,10 +155,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-openai-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-openai-oldest -- -ra
 
-  py313-test-instrumentation-openai-v2-latest_ubuntu-latest:
-    name: instrumentation-openai-v2-latest 3.13 Ubuntu
+  py313-test-instrumentation-genai-openai-latest_ubuntu-latest:
+    name: instrumentation-genai-openai-latest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -174,10 +174,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-openai-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-openai-latest -- -ra
 
-  py314-test-instrumentation-openai-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai-v2-oldest 3.14 Ubuntu
+  py314-test-instrumentation-genai-openai-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai-oldest 3.14 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -193,10 +193,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py314-test-instrumentation-openai-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py314-test-instrumentation-genai-openai-oldest -- -ra
 
-  py314-test-instrumentation-openai-v2-latest_ubuntu-latest:
-    name: instrumentation-openai-v2-latest 3.14 Ubuntu
+  py314-test-instrumentation-genai-openai-latest_ubuntu-latest:
+    name: instrumentation-genai-openai-latest 3.14 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -212,10 +212,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py314-test-instrumentation-openai-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py314-test-instrumentation-genai-openai-latest -- -ra
 
-  pypy3-test-instrumentation-openai-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai-v2-oldest pypy-3.10 Ubuntu
+  pypy3-test-instrumentation-genai-openai-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai-oldest pypy-3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -231,10 +231,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e pypy3-test-instrumentation-openai-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e pypy3-test-instrumentation-genai-openai-oldest -- -ra
 
-  pypy3-test-instrumentation-openai-v2-latest_ubuntu-latest:
-    name: instrumentation-openai-v2-latest pypy-3.10 Ubuntu
+  pypy3-test-instrumentation-genai-openai-latest_ubuntu-latest:
+    name: instrumentation-genai-openai-latest pypy-3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -250,10 +250,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e pypy3-test-instrumentation-openai-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e pypy3-test-instrumentation-genai-openai-latest -- -ra
 
-  py312-test-instrumentation-openai-v2-conformance_ubuntu-latest:
-    name: instrumentation-openai-v2-conformance 3.12 Ubuntu
+  py312-test-instrumentation-genai-openai-conformance_ubuntu-latest:
+    name: instrumentation-genai-openai-conformance 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -285,10 +285,10 @@ jobs:
           weaver --version
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-openai-v2-conformance -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-openai-conformance -- -ra
 
-  py313-test-instrumentation-openai-v2-conformance_ubuntu-latest:
-    name: instrumentation-openai-v2-conformance 3.13 Ubuntu
+  py313-test-instrumentation-genai-openai-conformance_ubuntu-latest:
+    name: instrumentation-genai-openai-conformance 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -320,10 +320,10 @@ jobs:
           weaver --version
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-openai-v2-conformance -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-openai-conformance -- -ra
 
-  py310-test-instrumentation-openai_agents-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-oldest 3.10 Ubuntu
+  py310-test-instrumentation-genai-openai_agents-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-oldest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -339,10 +339,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-openai_agents-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-openai_agents-oldest -- -ra
 
-  py310-test-instrumentation-openai_agents-v2-latest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-latest 3.10 Ubuntu
+  py310-test-instrumentation-genai-openai_agents-latest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-latest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -358,10 +358,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-openai_agents-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-openai_agents-latest -- -ra
 
-  py311-test-instrumentation-openai_agents-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-oldest 3.11 Ubuntu
+  py311-test-instrumentation-genai-openai_agents-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-oldest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -377,10 +377,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-openai_agents-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-openai_agents-oldest -- -ra
 
-  py311-test-instrumentation-openai_agents-v2-latest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-latest 3.11 Ubuntu
+  py311-test-instrumentation-genai-openai_agents-latest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-latest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -396,10 +396,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-openai_agents-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-openai_agents-latest -- -ra
 
-  py312-test-instrumentation-openai_agents-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-oldest 3.12 Ubuntu
+  py312-test-instrumentation-genai-openai_agents-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-oldest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -415,10 +415,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-openai_agents-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-openai_agents-oldest -- -ra
 
-  py312-test-instrumentation-openai_agents-v2-latest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-latest 3.12 Ubuntu
+  py312-test-instrumentation-genai-openai_agents-latest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-latest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -434,10 +434,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-openai_agents-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-openai_agents-latest -- -ra
 
-  py313-test-instrumentation-openai_agents-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-oldest 3.13 Ubuntu
+  py313-test-instrumentation-genai-openai_agents-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-oldest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -453,10 +453,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-openai_agents-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-openai_agents-oldest -- -ra
 
-  py313-test-instrumentation-openai_agents-v2-latest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-latest 3.13 Ubuntu
+  py313-test-instrumentation-genai-openai_agents-latest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-latest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -472,10 +472,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-openai_agents-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-openai_agents-latest -- -ra
 
-  py314-test-instrumentation-openai_agents-v2-oldest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-oldest 3.14 Ubuntu
+  py314-test-instrumentation-genai-openai_agents-oldest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-oldest 3.14 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -491,10 +491,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py314-test-instrumentation-openai_agents-v2-oldest -- -ra
+        run: uvx --with tox-uv tox -e py314-test-instrumentation-genai-openai_agents-oldest -- -ra
 
-  py314-test-instrumentation-openai_agents-v2-latest_ubuntu-latest:
-    name: instrumentation-openai_agents-v2-latest 3.14 Ubuntu
+  py314-test-instrumentation-genai-openai_agents-latest_ubuntu-latest:
+    name: instrumentation-genai-openai_agents-latest 3.14 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -510,7 +510,7 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py314-test-instrumentation-openai_agents-v2-latest -- -ra
+        run: uvx --with tox-uv tox -e py314-test-instrumentation-genai-openai_agents-latest -- -ra
 
   py310-test-instrumentation-google-genai-oldest_ubuntu-latest:
     name: instrumentation-google-genai-oldest 3.10 Ubuntu
@@ -702,8 +702,8 @@ jobs:
       - name: Run tests
         run: uvx --with tox-uv tox -e py314-test-instrumentation-google-genai-latest -- -ra
 
-  py310-test-instrumentation-anthropic-oldest_ubuntu-latest:
-    name: instrumentation-anthropic-oldest 3.10 Ubuntu
+  py310-test-instrumentation-genai-anthropic-oldest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-oldest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -719,10 +719,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-anthropic-oldest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-anthropic-oldest -- -ra
 
-  py310-test-instrumentation-anthropic-latest_ubuntu-latest:
-    name: instrumentation-anthropic-latest 3.10 Ubuntu
+  py310-test-instrumentation-genai-anthropic-latest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-latest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -738,10 +738,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-anthropic-latest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-anthropic-latest -- -ra
 
-  py311-test-instrumentation-anthropic-oldest_ubuntu-latest:
-    name: instrumentation-anthropic-oldest 3.11 Ubuntu
+  py311-test-instrumentation-genai-anthropic-oldest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-oldest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -757,10 +757,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-anthropic-oldest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-anthropic-oldest -- -ra
 
-  py311-test-instrumentation-anthropic-latest_ubuntu-latest:
-    name: instrumentation-anthropic-latest 3.11 Ubuntu
+  py311-test-instrumentation-genai-anthropic-latest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-latest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -776,10 +776,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-anthropic-latest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-anthropic-latest -- -ra
 
-  py312-test-instrumentation-anthropic-oldest_ubuntu-latest:
-    name: instrumentation-anthropic-oldest 3.12 Ubuntu
+  py312-test-instrumentation-genai-anthropic-oldest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-oldest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -795,10 +795,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-anthropic-oldest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-anthropic-oldest -- -ra
 
-  py312-test-instrumentation-anthropic-latest_ubuntu-latest:
-    name: instrumentation-anthropic-latest 3.12 Ubuntu
+  py312-test-instrumentation-genai-anthropic-latest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-latest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -814,10 +814,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-anthropic-latest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-anthropic-latest -- -ra
 
-  py313-test-instrumentation-anthropic-oldest_ubuntu-latest:
-    name: instrumentation-anthropic-oldest 3.13 Ubuntu
+  py313-test-instrumentation-genai-anthropic-oldest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-oldest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -833,10 +833,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-anthropic-oldest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-anthropic-oldest -- -ra
 
-  py313-test-instrumentation-anthropic-latest_ubuntu-latest:
-    name: instrumentation-anthropic-latest 3.13 Ubuntu
+  py313-test-instrumentation-genai-anthropic-latest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-latest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -852,10 +852,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-anthropic-latest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-anthropic-latest -- -ra
 
-  py314-test-instrumentation-anthropic-oldest_ubuntu-latest:
-    name: instrumentation-anthropic-oldest 3.14 Ubuntu
+  py314-test-instrumentation-genai-anthropic-oldest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-oldest 3.14 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -871,10 +871,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py314-test-instrumentation-anthropic-oldest -- -ra
+        run: uvx --with tox-uv tox -e py314-test-instrumentation-genai-anthropic-oldest -- -ra
 
-  py314-test-instrumentation-anthropic-latest_ubuntu-latest:
-    name: instrumentation-anthropic-latest 3.14 Ubuntu
+  py314-test-instrumentation-genai-anthropic-latest_ubuntu-latest:
+    name: instrumentation-genai-anthropic-latest 3.14 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -890,10 +890,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py314-test-instrumentation-anthropic-latest -- -ra
+        run: uvx --with tox-uv tox -e py314-test-instrumentation-genai-anthropic-latest -- -ra
 
-  py312-test-instrumentation-anthropic-conformance_ubuntu-latest:
-    name: instrumentation-anthropic-conformance 3.12 Ubuntu
+  py312-test-instrumentation-genai-anthropic-conformance_ubuntu-latest:
+    name: instrumentation-genai-anthropic-conformance 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -925,10 +925,10 @@ jobs:
           weaver --version
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-anthropic-conformance -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-anthropic-conformance -- -ra
 
-  py313-test-instrumentation-anthropic-conformance_ubuntu-latest:
-    name: instrumentation-anthropic-conformance 3.13 Ubuntu
+  py313-test-instrumentation-genai-anthropic-conformance_ubuntu-latest:
+    name: instrumentation-genai-anthropic-conformance 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -960,10 +960,10 @@ jobs:
           weaver --version
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-anthropic-conformance -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-anthropic-conformance -- -ra
 
-  py310-test-instrumentation-claude-agent-sdk-oldest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-oldest 3.10 Ubuntu
+  py310-test-instrumentation-genai-claude-agent-sdk-oldest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-oldest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -979,10 +979,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-claude-agent-sdk-oldest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-claude-agent-sdk-oldest -- -ra
 
-  py310-test-instrumentation-claude-agent-sdk-latest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-latest 3.10 Ubuntu
+  py310-test-instrumentation-genai-claude-agent-sdk-latest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-latest 3.10 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -998,10 +998,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py310-test-instrumentation-claude-agent-sdk-latest -- -ra
+        run: uvx --with tox-uv tox -e py310-test-instrumentation-genai-claude-agent-sdk-latest -- -ra
 
-  py311-test-instrumentation-claude-agent-sdk-oldest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-oldest 3.11 Ubuntu
+  py311-test-instrumentation-genai-claude-agent-sdk-oldest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-oldest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1017,10 +1017,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-claude-agent-sdk-oldest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-claude-agent-sdk-oldest -- -ra
 
-  py311-test-instrumentation-claude-agent-sdk-latest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-latest 3.11 Ubuntu
+  py311-test-instrumentation-genai-claude-agent-sdk-latest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-latest 3.11 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1036,10 +1036,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py311-test-instrumentation-claude-agent-sdk-latest -- -ra
+        run: uvx --with tox-uv tox -e py311-test-instrumentation-genai-claude-agent-sdk-latest -- -ra
 
-  py312-test-instrumentation-claude-agent-sdk-oldest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-oldest 3.12 Ubuntu
+  py312-test-instrumentation-genai-claude-agent-sdk-oldest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-oldest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1055,10 +1055,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-claude-agent-sdk-oldest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-claude-agent-sdk-oldest -- -ra
 
-  py312-test-instrumentation-claude-agent-sdk-latest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-latest 3.12 Ubuntu
+  py312-test-instrumentation-genai-claude-agent-sdk-latest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-latest 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1074,10 +1074,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-claude-agent-sdk-latest -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-claude-agent-sdk-latest -- -ra
 
-  py313-test-instrumentation-claude-agent-sdk-oldest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-oldest 3.13 Ubuntu
+  py313-test-instrumentation-genai-claude-agent-sdk-oldest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-oldest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1093,10 +1093,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-claude-agent-sdk-oldest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-claude-agent-sdk-oldest -- -ra
 
-  py313-test-instrumentation-claude-agent-sdk-latest_ubuntu-latest:
-    name: instrumentation-claude-agent-sdk-latest 3.13 Ubuntu
+  py313-test-instrumentation-genai-claude-agent-sdk-latest_ubuntu-latest:
+    name: instrumentation-genai-claude-agent-sdk-latest 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1112,10 +1112,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-claude-agent-sdk-latest -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-claude-agent-sdk-latest -- -ra
 
-  py312-test-instrumentation-langchain_ubuntu-latest:
-    name: instrumentation-langchain 3.12 Ubuntu
+  py312-test-instrumentation-genai-langchain_ubuntu-latest:
+    name: instrumentation-genai-langchain 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1131,10 +1131,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-langchain -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-langchain -- -ra
 
-  py313-test-instrumentation-langchain_ubuntu-latest:
-    name: instrumentation-langchain 3.13 Ubuntu
+  py313-test-instrumentation-genai-langchain_ubuntu-latest:
+    name: instrumentation-genai-langchain 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1150,10 +1150,10 @@ jobs:
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-langchain -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-langchain -- -ra
 
-  py312-test-instrumentation-langchain-conformance_ubuntu-latest:
-    name: instrumentation-langchain-conformance 3.12 Ubuntu
+  py312-test-instrumentation-genai-langchain-conformance_ubuntu-latest:
+    name: instrumentation-genai-langchain-conformance 3.12 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1185,10 +1185,10 @@ jobs:
           weaver --version
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py312-test-instrumentation-langchain-conformance -- -ra
+        run: uvx --with tox-uv tox -e py312-test-instrumentation-genai-langchain-conformance -- -ra
 
-  py313-test-instrumentation-langchain-conformance_ubuntu-latest:
-    name: instrumentation-langchain-conformance 3.13 Ubuntu
+  py313-test-instrumentation-genai-langchain-conformance_ubuntu-latest:
+    name: instrumentation-genai-langchain-conformance 3.13 Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -1220,7 +1220,7 @@ jobs:
           weaver --version
 
       - name: Run tests
-        run: uvx --with tox-uv tox -e py313-test-instrumentation-langchain-conformance -- -ra
+        run: uvx --with tox-uv tox -e py313-test-instrumentation-genai-langchain-conformance -- -ra
 
   py310-test-util-genai_ubuntu-latest:
     name: util-genai 3.10 Ubuntu

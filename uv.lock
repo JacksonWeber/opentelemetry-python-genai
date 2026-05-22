@@ -9,13 +9,13 @@ resolution-markers = [
 
 [manifest]
 members = [
-    "opentelemetry-instrumentation-anthropic",
-    "opentelemetry-instrumentation-claude-agent-sdk",
+    "opentelemetry-instrumentation-genai-anthropic",
+    "opentelemetry-instrumentation-genai-claude-agent-sdk",
+    "opentelemetry-instrumentation-genai-langchain",
+    "opentelemetry-instrumentation-genai-openai",
+    "opentelemetry-instrumentation-genai-openai-agents",
+    "opentelemetry-instrumentation-genai-weaviate-client",
     "opentelemetry-instrumentation-google-genai",
-    "opentelemetry-instrumentation-langchain",
-    "opentelemetry-instrumentation-openai-agents-v2",
-    "opentelemetry-instrumentation-openai-v2",
-    "opentelemetry-instrumentation-weaviate",
     "opentelemetry-python-genai",
     "opentelemetry-test-util-genai",
     "opentelemetry-util-genai",
@@ -1132,8 +1132,8 @@ wheels = [
 ]
 
 [[package]]
-name = "opentelemetry-instrumentation-anthropic"
-source = { editable = "instrumentation/opentelemetry-instrumentation-anthropic" }
+name = "opentelemetry-instrumentation-genai-anthropic"
+source = { editable = "instrumentation/opentelemetry-instrumentation-genai-anthropic" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "opentelemetry-instrumentation" },
@@ -1157,8 +1157,8 @@ requires-dist = [
 provides-extras = ["instruments"]
 
 [[package]]
-name = "opentelemetry-instrumentation-claude-agent-sdk"
-source = { editable = "instrumentation/opentelemetry-instrumentation-claude-agent-sdk" }
+name = "opentelemetry-instrumentation-genai-claude-agent-sdk"
+source = { editable = "instrumentation/opentelemetry-instrumentation-genai-claude-agent-sdk" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "opentelemetry-instrumentation" },
@@ -1178,6 +1178,100 @@ requires-dist = [
     { name = "opentelemetry-instrumentation", specifier = "~=0.60b0" },
     { name = "opentelemetry-semantic-conventions", specifier = "~=0.60b0" },
     { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
+]
+provides-extras = ["instruments"]
+
+[[package]]
+name = "opentelemetry-instrumentation-genai-langchain"
+source = { editable = "instrumentation/opentelemetry-instrumentation-genai-langchain" }
+dependencies = [
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-util-genai" },
+]
+
+[package.optional-dependencies]
+instruments = [
+    { name = "langchain" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "langchain", marker = "extra == 'instruments'", specifier = ">=0.3.21" },
+    { name = "opentelemetry-instrumentation", specifier = ">=0.62b0" },
+    { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
+]
+provides-extras = ["instruments"]
+
+[[package]]
+name = "opentelemetry-instrumentation-genai-openai"
+source = { editable = "instrumentation/opentelemetry-instrumentation-genai-openai" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-semantic-conventions" },
+    { name = "opentelemetry-util-genai" },
+]
+
+[package.optional-dependencies]
+instruments = [
+    { name = "openai" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "openai", marker = "extra == 'instruments'", specifier = ">=1.26.0" },
+    { name = "opentelemetry-api", specifier = "~=1.40" },
+    { name = "opentelemetry-instrumentation", specifier = "~=0.61b0" },
+    { name = "opentelemetry-semantic-conventions", specifier = "~=0.61b0" },
+    { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
+]
+provides-extras = ["instruments"]
+
+[[package]]
+name = "opentelemetry-instrumentation-genai-openai-agents"
+source = { editable = "instrumentation/opentelemetry-instrumentation-genai-openai-agents" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-semantic-conventions" },
+    { name = "opentelemetry-util-genai" },
+]
+
+[package.optional-dependencies]
+instruments = [
+    { name = "openai-agents" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "openai-agents", marker = "extra == 'instruments'", specifier = ">=0.3.3" },
+    { name = "opentelemetry-api", specifier = ">=1.40" },
+    { name = "opentelemetry-instrumentation", specifier = ">=0.61b0" },
+    { name = "opentelemetry-semantic-conventions", specifier = ">=0.61b0" },
+    { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
+]
+provides-extras = ["instruments"]
+
+[[package]]
+name = "opentelemetry-instrumentation-genai-weaviate-client"
+source = { editable = "instrumentation/opentelemetry-instrumentation-genai-weaviate-client" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-instrumentation" },
+    { name = "opentelemetry-semantic-conventions" },
+]
+
+[package.optional-dependencies]
+instruments = [
+    { name = "weaviate-client" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "opentelemetry-api", specifier = "~=1.30" },
+    { name = "opentelemetry-instrumentation", specifier = "~=0.51b0" },
+    { name = "opentelemetry-semantic-conventions", specifier = "~=0.51b0" },
+    { name = "weaviate-client", marker = "extra == 'instruments'", specifier = ">=3.0" },
 ]
 provides-extras = ["instruments"]
 
@@ -1207,113 +1301,19 @@ requires-dist = [
 provides-extras = ["instruments"]
 
 [[package]]
-name = "opentelemetry-instrumentation-langchain"
-source = { editable = "instrumentation/opentelemetry-instrumentation-langchain" }
-dependencies = [
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-util-genai" },
-]
-
-[package.optional-dependencies]
-instruments = [
-    { name = "langchain" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "langchain", marker = "extra == 'instruments'", specifier = ">=0.3.21" },
-    { name = "opentelemetry-instrumentation", specifier = ">=0.62b0" },
-    { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
-]
-provides-extras = ["instruments"]
-
-[[package]]
-name = "opentelemetry-instrumentation-openai-agents-v2"
-source = { editable = "instrumentation/opentelemetry-instrumentation-openai-agents-v2" }
-dependencies = [
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-semantic-conventions" },
-    { name = "opentelemetry-util-genai" },
-]
-
-[package.optional-dependencies]
-instruments = [
-    { name = "openai-agents" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "openai-agents", marker = "extra == 'instruments'", specifier = ">=0.3.3" },
-    { name = "opentelemetry-api", specifier = ">=1.40" },
-    { name = "opentelemetry-instrumentation", specifier = ">=0.61b0" },
-    { name = "opentelemetry-semantic-conventions", specifier = ">=0.61b0" },
-    { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
-]
-provides-extras = ["instruments"]
-
-[[package]]
-name = "opentelemetry-instrumentation-openai-v2"
-source = { editable = "instrumentation/opentelemetry-instrumentation-openai-v2" }
-dependencies = [
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-semantic-conventions" },
-    { name = "opentelemetry-util-genai" },
-]
-
-[package.optional-dependencies]
-instruments = [
-    { name = "openai" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "openai", marker = "extra == 'instruments'", specifier = ">=1.26.0" },
-    { name = "opentelemetry-api", specifier = "~=1.40" },
-    { name = "opentelemetry-instrumentation", specifier = "~=0.61b0" },
-    { name = "opentelemetry-semantic-conventions", specifier = "~=0.61b0" },
-    { name = "opentelemetry-util-genai", editable = "util/opentelemetry-util-genai" },
-]
-provides-extras = ["instruments"]
-
-[[package]]
-name = "opentelemetry-instrumentation-weaviate"
-source = { editable = "instrumentation/opentelemetry-instrumentation-weaviate" }
-dependencies = [
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-semantic-conventions" },
-]
-
-[package.optional-dependencies]
-instruments = [
-    { name = "weaviate-client" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "opentelemetry-api", specifier = "~=1.30" },
-    { name = "opentelemetry-instrumentation", specifier = "~=0.51b0" },
-    { name = "opentelemetry-semantic-conventions", specifier = "~=0.51b0" },
-    { name = "weaviate-client", marker = "extra == 'instruments'", specifier = ">=3.0" },
-]
-provides-extras = ["instruments"]
-
-[[package]]
 name = "opentelemetry-python-genai"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-instrumentation-anthropic", extra = ["instruments"] },
-    { name = "opentelemetry-instrumentation-claude-agent-sdk", extra = ["instruments"] },
+    { name = "opentelemetry-instrumentation-genai-anthropic", extra = ["instruments"] },
+    { name = "opentelemetry-instrumentation-genai-claude-agent-sdk", extra = ["instruments"] },
+    { name = "opentelemetry-instrumentation-genai-langchain", extra = ["instruments"] },
+    { name = "opentelemetry-instrumentation-genai-openai", extra = ["instruments"] },
+    { name = "opentelemetry-instrumentation-genai-openai-agents", extra = ["instruments"] },
+    { name = "opentelemetry-instrumentation-genai-weaviate-client", extra = ["instruments"] },
     { name = "opentelemetry-instrumentation-google-genai", extra = ["instruments"] },
-    { name = "opentelemetry-instrumentation-langchain", extra = ["instruments"] },
-    { name = "opentelemetry-instrumentation-openai-agents-v2", extra = ["instruments"] },
-    { name = "opentelemetry-instrumentation-openai-v2", extra = ["instruments"] },
-    { name = "opentelemetry-instrumentation-weaviate", extra = ["instruments"] },
     { name = "opentelemetry-sdk" },
     { name = "opentelemetry-semantic-conventions" },
     { name = "opentelemetry-test-util-genai" },
@@ -1333,13 +1333,13 @@ dev = [
 requires-dist = [
     { name = "opentelemetry-api" },
     { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-instrumentation-anthropic", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-anthropic" },
-    { name = "opentelemetry-instrumentation-claude-agent-sdk", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-claude-agent-sdk" },
+    { name = "opentelemetry-instrumentation-genai-anthropic", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-genai-anthropic" },
+    { name = "opentelemetry-instrumentation-genai-claude-agent-sdk", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-genai-claude-agent-sdk" },
+    { name = "opentelemetry-instrumentation-genai-langchain", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-genai-langchain" },
+    { name = "opentelemetry-instrumentation-genai-openai", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-genai-openai" },
+    { name = "opentelemetry-instrumentation-genai-openai-agents", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-genai-openai-agents" },
+    { name = "opentelemetry-instrumentation-genai-weaviate-client", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-genai-weaviate-client" },
     { name = "opentelemetry-instrumentation-google-genai", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-google-genai" },
-    { name = "opentelemetry-instrumentation-langchain", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-langchain" },
-    { name = "opentelemetry-instrumentation-openai-agents-v2", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-openai-agents-v2" },
-    { name = "opentelemetry-instrumentation-openai-v2", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-openai-v2" },
-    { name = "opentelemetry-instrumentation-weaviate", extras = ["instruments"], editable = "instrumentation/opentelemetry-instrumentation-weaviate" },
     { name = "opentelemetry-sdk" },
     { name = "opentelemetry-semantic-conventions" },
     { name = "opentelemetry-test-util-genai", editable = "util/opentelemetry-test-util-genai" },
