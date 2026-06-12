@@ -94,9 +94,7 @@ def test_model_preserved_when_provided(handler, span_exporter):
 
 def test_server_address_and_port_from_client(handler, span_exporter):
     client = _make_client(URL("http://localhost:8080/v1"))
-    invocation = create_embedding_invocation(
-        handler, {"model": "m"}, client
-    )
+    invocation = create_embedding_invocation(handler, {"model": "m"}, client)
     invocation.stop()
 
     span = span_exporter.get_finished_spans()[0]
