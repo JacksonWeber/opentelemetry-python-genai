@@ -282,7 +282,7 @@ def create_embedding_invocation(
     address, port = get_server_address_and_port(client_instance)
     invocation = handler.embedding(
         GenAIAttributes.GenAiProviderNameValues.OPENAI.value,
-        request_model=kwargs.get("model", ""),
+        request_model=get_value(kwargs.get("model")),
         server_address=address if address else None,
         server_port=port if port else None,
     )

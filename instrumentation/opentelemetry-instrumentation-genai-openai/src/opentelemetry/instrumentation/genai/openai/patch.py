@@ -2,8 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import logging
 from typing import Any
 
+from opentelemetry.semconv._incubating.attributes import (
+    gen_ai_attributes as GenAIAttributes,
+)
 from opentelemetry.semconv._incubating.attributes import (
     openai_attributes as OpenAIAttributes,
 )
@@ -23,6 +27,8 @@ from .utils import (
     create_embedding_invocation,
     is_streaming,
 )
+
+_logger = logging.getLogger(__name__)
 
 
 def chat_completions_create_v_new(
@@ -104,12 +110,13 @@ def embeddings_create(handler: TelemetryHandler):
 
         try:
             result = wrapped(*args, **kwargs)
-            _set_embeddings_response_properties(invocation, result)
-            invocation.stop()
-            return result
         except Exception as error:
-            invocation.fail(error)
+            invocation.fail(Error(type=type(error), message=str(error)))
             raise
+
+        _safe_set_embeddings_response_properties(invocation, result)
+        invocation.stop()
+        return result
 
     return traced_method
 
@@ -122,12 +129,13 @@ def async_embeddings_create(handler: TelemetryHandler):
 
         try:
             result = await wrapped(*args, **kwargs)
-            _set_embeddings_response_properties(invocation, result)
-            invocation.stop()
-            return result
         except Exception as error:
-            invocation.fail(error)
+            invocation.fail(Error(type=type(error), message=str(error)))
             raise
+
+        _safe_set_embeddings_response_properties(invocation, result)
+        invocation.stop()
+        return result
 
     return traced_method
 
@@ -195,8 +203,34 @@ def _set_embeddings_response_properties(
     if getattr(result, "data", None) and len(result.data) > 0:
         first_embedding = result.data[0]
         if getattr(first_embedding, "embedding", None):
-            invocation.dimension_count = len(first_embedding.embedding)
+            dimension_count = len(first_embedding.embedding)
+            invocation.dimension_count = dimension_count
+            # Mirror create_embedding_invocation: EmbeddingInvocation does
+            # not put dimension_count on metric attributes, so surface it
+            # explicitly when we derive it from the response too.
+            invocation.metric_attributes[
+                GenAIAttributes.GEN_AI_EMBEDDINGS_DIMENSION_COUNT
+            ] = dimension_count
 
     # Embeddings only have input tokens; output tokens are not applicable.
     if getattr(result, "usage", None):
         invocation.input_tokens = result.usage.prompt_tokens
+
+
+def _safe_set_embeddings_response_properties(
+    invocation: EmbeddingInvocation,
+    result: Any,
+) -> None:
+    """Best-effort wrapper around ``_set_embeddings_response_properties``.
+
+    Instrumentation must never break the wrapped library call, so extraction
+    errors (e.g., from an unexpected SDK response shape) are caught and logged
+    rather than propagated.
+    """
+    try:
+        _set_embeddings_response_properties(invocation, result)
+    except Exception:  # pylint: disable=broad-except
+        _logger.debug(
+            "Failed to extract embeddings response properties",
+            exc_info=True,
+        )
