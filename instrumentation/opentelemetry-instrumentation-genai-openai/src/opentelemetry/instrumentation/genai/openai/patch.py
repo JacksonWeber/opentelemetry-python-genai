@@ -3,7 +3,8 @@
 
 
 import logging
-from typing import Any
+
+from openai.types import CreateEmbeddingResponse
 
 from opentelemetry.semconv._incubating.attributes import (
     gen_ai_attributes as GenAIAttributes,
@@ -24,11 +25,39 @@ from .chat_wrappers import AsyncChatStreamWrapper, ChatStreamWrapper
 from .utils import (
     _prepare_output_messages,
     create_chat_invocation,
-    create_embedding_invocation,
+    get_server_address_and_port,
+    get_value,
     is_streaming,
 )
 
 _logger = logging.getLogger(__name__)
+
+
+def _create_embedding_invocation(
+    handler: TelemetryHandler,
+    kwargs,
+    client_instance,
+) -> EmbeddingInvocation:
+    address, port = get_server_address_and_port(client_instance)
+    invocation = handler.embedding(
+        GenAIAttributes.GenAiProviderNameValues.OPENAI.value,
+        request_model=get_value(kwargs.get("model")),
+        server_address=address if address else None,
+        server_port=port if port else None,
+    )
+
+    if (dimensions := get_value(kwargs.get("dimensions"))) is not None:
+        invocation.dimension_count = dimensions
+        invocation.metric_attributes[
+            GenAIAttributes.GEN_AI_EMBEDDINGS_DIMENSION_COUNT
+        ] = dimensions
+
+    if (
+        encoding_format := get_value(kwargs.get("encoding_format"))
+    ) is not None:
+        invocation.encoding_formats = [encoding_format]
+
+    return invocation
 
 
 def chat_completions_create_v_new(
@@ -106,7 +135,7 @@ def embeddings_create(handler: TelemetryHandler):
     """Wrap the `create` method of the `Embeddings` class to trace it."""
 
     def traced_method(wrapped, instance, args, kwargs):
-        invocation = create_embedding_invocation(handler, kwargs, instance)
+        invocation = _create_embedding_invocation(handler, kwargs, instance)
 
         try:
             result = wrapped(*args, **kwargs)
@@ -125,7 +154,7 @@ def async_embeddings_create(handler: TelemetryHandler):
     """Wrap the `create` method of the `AsyncEmbeddings` class to trace it."""
 
     async def traced_method(wrapped, instance, args, kwargs):
-        invocation = create_embedding_invocation(handler, kwargs, instance)
+        invocation = _create_embedding_invocation(handler, kwargs, instance)
 
         try:
             result = await wrapped(*args, **kwargs)
@@ -194,7 +223,7 @@ def _set_response_properties(
 
 def _set_embeddings_response_properties(
     invocation: EmbeddingInvocation,
-    result: Any,
+    result: CreateEmbeddingResponse,
 ) -> None:
     if getattr(result, "model", None):
         invocation.response_model_name = result.model
@@ -205,7 +234,7 @@ def _set_embeddings_response_properties(
         if getattr(first_embedding, "embedding", None):
             dimension_count = len(first_embedding.embedding)
             invocation.dimension_count = dimension_count
-            # Mirror create_embedding_invocation: EmbeddingInvocation does
+            # Mirror _create_embedding_invocation: EmbeddingInvocation does
             # not put dimension_count on metric attributes, so surface it
             # explicitly when we derive it from the response too.
             invocation.metric_attributes[
@@ -219,7 +248,7 @@ def _set_embeddings_response_properties(
 
 def _safe_set_embeddings_response_properties(
     invocation: EmbeddingInvocation,
-    result: Any,
+    result: CreateEmbeddingResponse,
 ) -> None:
     """Best-effort wrapper around ``_set_embeddings_response_properties``.
 

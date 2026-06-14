@@ -24,7 +24,6 @@ from opentelemetry.util.genai.environment_variables import (
 )
 from opentelemetry.util.genai.handler import TelemetryHandler
 from opentelemetry.util.genai.invocation import (
-    EmbeddingInvocation,
     InferenceInvocation,
 )
 from opentelemetry.util.genai.types import (
@@ -272,36 +271,6 @@ def get_value(v: Any):
     if value_is_set(v):
         return v
     return None
-
-
-def create_embedding_invocation(
-    handler: TelemetryHandler,
-    kwargs,
-    client_instance,
-) -> EmbeddingInvocation:
-    address, port = get_server_address_and_port(client_instance)
-    invocation = handler.embedding(
-        GenAIAttributes.GenAiProviderNameValues.OPENAI.value,
-        request_model=get_value(kwargs.get("model")),
-        server_address=address if address else None,
-        server_port=port if port else None,
-    )
-
-    if (dimensions := get_value(kwargs.get("dimensions"))) is not None:
-        invocation.dimension_count = dimensions
-        # EmbeddingInvocation does not put dimension_count on metric
-        # attributes; surface it explicitly so it shows up on the
-        # gen_ai.client.operation.duration / token.usage metrics per semconv.
-        invocation.metric_attributes[
-            GenAIAttributes.GEN_AI_EMBEDDINGS_DIMENSION_COUNT
-        ] = dimensions
-
-    if (
-        encoding_format := get_value(kwargs.get("encoding_format"))
-    ) is not None:
-        invocation.encoding_formats = [encoding_format]
-
-    return invocation
 
 
 def _is_text_part(content: Any) -> bool:

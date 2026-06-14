@@ -1,7 +1,7 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-"""Unit tests for create_embedding_invocation and the embeddings wrappers.
+"""Unit tests for the embeddings invocation builder and wrappers.
 
 These tests replace the legacy ``test_request_attributes.py`` coverage
 that targeted the removed ``get_llm_request_attributes`` /
@@ -18,10 +18,10 @@ import pytest
 from httpx import URL
 
 from opentelemetry.instrumentation.genai.openai.patch import (
-    embeddings_create,
+    _create_embedding_invocation as create_embedding_invocation,
 )
-from opentelemetry.instrumentation.genai.openai.utils import (
-    create_embedding_invocation,
+from opentelemetry.instrumentation.genai.openai.patch import (
+    embeddings_create,
 )
 from opentelemetry.semconv._incubating.attributes import (
     gen_ai_attributes as GenAIAttributes,
