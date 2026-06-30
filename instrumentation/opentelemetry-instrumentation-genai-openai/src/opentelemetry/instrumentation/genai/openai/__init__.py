@@ -177,6 +177,24 @@ class OpenAIInstrumentor(BaseInstrumentor):
                 async_responses_create(handler),
             )
 
+            # retrieve() fetches a stored response by id without going through
+            # create(), so wrap it separately. The result is a Response, so the
+            # create wrappers extract its telemetry correctly.
+            if hasattr(responses_module.Responses, "retrieve"):
+                wrap_function_wrapper(
+                    "openai.resources.responses.responses",
+                    "Responses.retrieve",
+                    responses_create(handler),
+                )
+            if hasattr(responses_module, "AsyncResponses") and hasattr(
+                responses_module.AsyncResponses, "retrieve"
+            ):
+                wrap_function_wrapper(
+                    "openai.resources.responses.responses",
+                    "AsyncResponses.retrieve",
+                    async_responses_create(handler),
+                )
+
     def _uninstrument(self, **kwargs):
         import openai  # pylint: disable=import-outside-toplevel  # noqa: PLC0415
 
@@ -190,8 +208,12 @@ class OpenAIInstrumentor(BaseInstrumentor):
         responses_module = _get_responses_module()
         if responses_module is not None:
             unwrap(responses_module.Responses, "create")
+            if hasattr(responses_module.Responses, "retrieve"):
+                unwrap(responses_module.Responses, "retrieve")
             if hasattr(responses_module, "AsyncResponses"):
                 unwrap(responses_module.AsyncResponses, "create")
+                if hasattr(responses_module.AsyncResponses, "retrieve"):
+                    unwrap(responses_module.AsyncResponses, "retrieve")
 
 
 def _get_responses_module():

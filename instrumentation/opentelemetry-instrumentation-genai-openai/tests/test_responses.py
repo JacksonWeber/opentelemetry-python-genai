@@ -202,6 +202,60 @@ def test_responses_create_basic(
     assert GenAIAttributes.GEN_AI_OUTPUT_MESSAGES not in span.attributes
 
 
+RETRIEVE_RESPONSE_ID = "resp_0f4faba17dcd0f1e0069e2f3e4907881909179832ba1237025"
+
+
+@pytest.mark.vcr()
+def test_responses_retrieve_basic(
+    span_exporter, openai_client, instrument_no_content
+):
+    _skip_if_not_latest()
+
+    response = openai_client.responses.retrieve(RETRIEVE_RESPONSE_ID)
+
+    (span,) = span_exporter.get_finished_spans()
+    # retrieve carries no request model/input; telemetry comes from the
+    # fetched response only.
+    assert GenAIAttributes.GEN_AI_REQUEST_MODEL not in span.attributes
+    assert (
+        span.attributes[GenAIAttributes.GEN_AI_RESPONSE_MODEL]
+        == response.model
+    )
+    assert (
+        span.attributes[GenAIAttributes.GEN_AI_RESPONSE_ID] == response.id
+    )
+    assert (
+        span.attributes[GenAIAttributes.GEN_AI_USAGE_INPUT_TOKENS]
+        == response.usage.input_tokens
+    )
+    assert (
+        span.attributes[GenAIAttributes.GEN_AI_USAGE_OUTPUT_TOKENS]
+        == response.usage.output_tokens
+    )
+    assert span.attributes[GenAIAttributes.GEN_AI_RESPONSE_FINISH_REASONS] == (
+        "stop",
+    )
+    assert GenAIAttributes.GEN_AI_INPUT_MESSAGES not in span.attributes
+    assert GenAIAttributes.GEN_AI_OUTPUT_MESSAGES not in span.attributes
+
+
+@pytest.mark.vcr()
+def test_responses_retrieve_captures_content(
+    span_exporter, openai_client, instrument_with_content
+):
+    _skip_if_not_latest()
+
+    response = openai_client.responses.retrieve(RETRIEVE_RESPONSE_ID)
+
+    (span,) = span_exporter.get_finished_spans()
+    assert_messages_attribute(
+        span.attributes[GenAIAttributes.GEN_AI_OUTPUT_MESSAGES],
+        format_simple_expected_output_message(response.output_text),
+    )
+    # retrieve has no request-side input messages to capture.
+    assert GenAIAttributes.GEN_AI_INPUT_MESSAGES not in span.attributes
+
+
 @pytest.mark.vcr()
 def test_responses_create_captures_content(
     request,
