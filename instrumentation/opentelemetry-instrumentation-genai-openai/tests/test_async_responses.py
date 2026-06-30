@@ -187,6 +187,9 @@ async def test_async_responses_create_basic(
 RETRIEVE_RESPONSE_ID = (
     "resp_0f4faba17dcd0f1e0069e2f3e4907881909179832ba1237025"
 )
+RETRIEVE_MISSING_RESPONSE_ID = (
+    "resp_doesnotexist0000000000000000000000000000000000"
+)
 
 
 @pytest.mark.asyncio()
@@ -246,6 +249,27 @@ async def test_async_responses_retrieve_captures_content(
     )
     # retrieve has no request-side input messages to capture.
     assert GenAIAttributes.GEN_AI_INPUT_MESSAGES not in span.attributes
+
+
+@pytest.mark.asyncio()
+async def test_async_responses_retrieve_api_error(
+    span_exporter, async_openai_client, instrument_no_content, vcr
+):
+    _skip_if_not_latest()
+
+    with vcr.use_cassette(
+        "test_async_responses_retrieve_api_error[content_mode0].yaml"
+    ):
+        with pytest.raises(NotFoundError) as exc_info:
+            await async_openai_client.responses.retrieve(
+                RETRIEVE_MISSING_RESPONSE_ID
+            )
+
+    (span,) = span_exporter.get_finished_spans()
+    assert (
+        span.attributes[ErrorAttributes.ERROR_TYPE]
+        == type(exc_info.value).__name__
+    )
 
 
 @pytest.mark.asyncio()
