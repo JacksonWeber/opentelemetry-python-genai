@@ -202,7 +202,9 @@ def test_responses_create_basic(
     assert GenAIAttributes.GEN_AI_OUTPUT_MESSAGES not in span.attributes
 
 
-RETRIEVE_RESPONSE_ID = "resp_0f4faba17dcd0f1e0069e2f3e4907881909179832ba1237025"
+RETRIEVE_RESPONSE_ID = (
+    "resp_0f4faba17dcd0f1e0069e2f3e4907881909179832ba1237025"
+)
 
 
 @pytest.mark.vcr()
@@ -221,9 +223,7 @@ def test_responses_retrieve_basic(
         span.attributes[GenAIAttributes.GEN_AI_RESPONSE_MODEL]
         == response.model
     )
-    assert (
-        span.attributes[GenAIAttributes.GEN_AI_RESPONSE_ID] == response.id
-    )
+    assert span.attributes[GenAIAttributes.GEN_AI_RESPONSE_ID] == response.id
     assert (
         span.attributes[GenAIAttributes.GEN_AI_USAGE_INPUT_TOKENS]
         == response.usage.input_tokens

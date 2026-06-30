@@ -184,7 +184,9 @@ async def test_async_responses_create_basic(
     assert GenAIAttributes.GEN_AI_OUTPUT_MESSAGES not in span.attributes
 
 
-RETRIEVE_RESPONSE_ID = "resp_0f4faba17dcd0f1e0069e2f3e4907881909179832ba1237025"
+RETRIEVE_RESPONSE_ID = (
+    "resp_0f4faba17dcd0f1e0069e2f3e4907881909179832ba1237025"
+)
 
 
 @pytest.mark.asyncio()
