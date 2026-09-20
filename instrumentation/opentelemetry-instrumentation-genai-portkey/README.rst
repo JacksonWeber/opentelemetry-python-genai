@@ -66,7 +66,8 @@ for synchronous, asynchronous, and streaming calls:
 Availability depends on the provider and model. Aggregate input and output
 totals are preserved, and modality counts are never inferred from those
 totals. No per-modality cache counts are inferred from the aggregate cache-read
-count. Missing or invalid detailed counts are omitted; streaming updates
+count. Only non-negative integer counts, excluding booleans, are accepted.
+Missing or invalid counts are omitted; streaming updates
 retain previously reported counts when later chunks omit them. These
 attributes do not require message-content capture.
 

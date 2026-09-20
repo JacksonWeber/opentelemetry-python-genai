@@ -402,12 +402,12 @@ def set_usage_properties(
     if usage is None:
         return
 
-    prompt_tokens = get_property_value(usage, "prompt_tokens")
+    prompt_tokens = _get_token_count(usage, "prompt_tokens")
     if prompt_tokens is not None:
-        invocation.input_tokens = int(prompt_tokens)
-    completion_tokens = get_property_value(usage, "completion_tokens")
+        invocation.input_tokens = prompt_tokens
+    completion_tokens = _get_token_count(usage, "completion_tokens")
     if completion_tokens is not None:
-        invocation.output_tokens = int(completion_tokens)
+        invocation.output_tokens = completion_tokens
 
     input_details = get_property_value(usage, "prompt_tokens_details")
     output_details = get_property_value(usage, "completion_tokens_details")

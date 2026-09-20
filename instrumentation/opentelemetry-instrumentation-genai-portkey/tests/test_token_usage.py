@@ -379,6 +379,64 @@ def test_invalid_detailed_counts_are_omitted(
     assert _usage_attributes(span_exporter) == _AGGREGATES
 
 
+@pytest.mark.parametrize(
+    "invalid",
+    [None, -1, True, False, "12", 1.5, float("nan"), float("inf"), {}, []],
+)
+@pytest.mark.parametrize("previous_counts", [False, True])
+@pytest.mark.parametrize("as_object", [False, True])
+def test_invalid_aggregate_counts_do_not_replace_valid_usage(
+    tracer_provider: TracerProvider,
+    span_exporter: InMemorySpanExporter,
+    invalid: object,
+    previous_counts: bool,
+    as_object: bool,
+) -> None:
+    handler = TelemetryHandler(tracer_provider=tracer_provider)
+    with handler.inference(
+        "portkey", request_model="test-model"
+    ) as invocation:
+        if previous_counts:
+            set_usage_properties(invocation, _TOTALS)
+        usage = {
+            **_OPENAI_USAGE,
+            "prompt_tokens": invalid,
+            "completion_tokens": invalid,
+        }
+        set_usage_properties(
+            invocation, SimpleNamespace(**usage) if as_object else usage
+        )
+        assert invocation.input_tokens == (100 if previous_counts else None)
+        assert invocation.output_tokens == (20 if previous_counts else None)
+
+    expected = dict(_OPENAI_ATTRIBUTES)
+    if not previous_counts:
+        expected.pop("gen_ai.usage.input_tokens")
+        expected.pop("gen_ai.usage.output_tokens")
+    assert _usage_attributes(span_exporter) == expected
+    (span,) = span_exporter.get_finished_spans()
+    assert span.status.status_code == StatusCode.UNSET
+
+
+def test_zero_aggregate_counts_replace_previous_totals(
+    tracer_provider: TracerProvider, span_exporter: InMemorySpanExporter
+) -> None:
+    handler = TelemetryHandler(tracer_provider=tracer_provider)
+    with handler.inference(
+        "portkey", request_model="test-model"
+    ) as invocation:
+        set_usage_properties(invocation, _TOTALS)
+        set_usage_properties(
+            invocation, {"prompt_tokens": 0, "completion_tokens": 0}
+        )
+        assert invocation.input_tokens == 0
+        assert invocation.output_tokens == 0
+    assert _usage_attributes(span_exporter) == {
+        "gen_ai.usage.input_tokens": 0,
+        "gen_ai.usage.output_tokens": 0,
+    }
+
+
 def test_partial_usage_snapshots_preserve_previous_counts(
     tracer_provider: TracerProvider, span_exporter: InMemorySpanExporter
 ) -> None:
