@@ -24,6 +24,7 @@ from opentelemetry.util.genai.types import (
     ErrorTypeResolver,
     InputMessage,
     MessagePart,
+    Modality,
     ModalityTokens,
     OutputMessage,
     SystemInstructionPart,
@@ -54,19 +55,19 @@ _GEN_AI_USAGE_AUDIO_CACHE_READ_INPUT_TOKENS: Final = (
     "gen_ai.usage.audio.cache_read.input_tokens"
 )
 _INPUT_MODALITY_FIELDS: Final[Mapping[str, str]] = {
-    "text": "text_input_tokens",
-    "image": "image_input_tokens",
-    "audio": "audio_input_tokens",
+    Modality.TEXT: "text_input_tokens",
+    Modality.IMAGE: "image_input_tokens",
+    Modality.AUDIO: "audio_input_tokens",
 }
 _OUTPUT_MODALITY_FIELDS: Final[Mapping[str, str]] = {
-    "text": "text_output_tokens",
-    "image": "image_output_tokens",
-    "audio": "audio_output_tokens",
+    Modality.TEXT: "text_output_tokens",
+    Modality.IMAGE: "image_output_tokens",
+    Modality.AUDIO: "audio_output_tokens",
 }
 _CACHE_READ_MODALITY_FIELDS: Final[Mapping[str, str]] = {
-    "text": "text_cache_read_input_tokens",
-    "image": "image_cache_read_input_tokens",
-    "audio": "audio_cache_read_input_tokens",
+    Modality.TEXT: "text_cache_read_input_tokens",
+    Modality.IMAGE: "image_cache_read_input_tokens",
+    Modality.AUDIO: "audio_cache_read_input_tokens",
 }
 _GEN_AI_REQUEST_REASONING_LEVEL: Final = "gen_ai.request.reasoning.level"
 _GEN_AI_REQUEST_PREVIOUS_RESPONSE_ID: Final = (

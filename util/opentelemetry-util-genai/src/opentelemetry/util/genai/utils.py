@@ -18,6 +18,7 @@ from opentelemetry.util.genai.types import (
     BlobPart,
     ContentCapturingMode,
     MessagePart,
+    Modality,
     UriPart,
 )
 
@@ -55,7 +56,9 @@ def decode_base64(data: str) -> bytes | None:
         return None
 
 
-def image_from_url(url: str, *, modality: str = "image") -> MessagePart | None:
+def image_from_url(
+    url: str, *, modality: Modality | str = Modality.IMAGE
+) -> MessagePart | None:
     """Return a media part for an image ``url``.
 
     A ``data:<mime>;base64,<payload>`` URL is decoded into a
