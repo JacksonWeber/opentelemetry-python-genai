@@ -59,13 +59,16 @@ def decode_base64(data: str) -> bytes | None:
 def image_from_url(
     url: str, *, modality: Modality | str = Modality.IMAGE
 ) -> MessagePart | None:
-    """Return a media part for an image ``url``.
+    """Return a media part for a ``url``, defaulting to the image modality.
+
+    Override ``modality`` for other standard or provider-specific media,
+    such as audio or documents.
 
     A ``data:<mime>;base64,<payload>`` URL is decoded into a
     :class:`~opentelemetry.util.genai.types.BlobPart`; a ``data:`` URL without
     base64 encoding has its percent-encoded payload decoded into bytes; any
     other URL becomes a :class:`~opentelemetry.util.genai.types.UriPart`. Shared
-    by instrumentations that parse provider image blocks.
+    by instrumentations that parse provider media blocks.
 
     Called only when content capture is enabled
     (``TelemetryHandler.should_capture_content()``).

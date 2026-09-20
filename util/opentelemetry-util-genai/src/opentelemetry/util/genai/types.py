@@ -159,8 +159,9 @@ class Modality(str, Enum):
 
     Based on the `GenAI messages Python models - Modality
     <https://github.com/open-telemetry/semantic-conventions-genai/blob/main/docs/gen-ai/non-normative/models.py>`__.
-    ``TEXT`` also supports token accounting. Use plain strings for
-    provider-specific modalities.
+    Token setters record only ``TEXT``, ``IMAGE``, and ``AUDIO``; other
+    modalities are ignored. Message parts accept all members and plain
+    strings for provider-specific modalities.
     """
 
     TEXT = "text"
@@ -178,6 +179,7 @@ ModalityTokens: TypeAlias = Iterable[tuple[Modality | str, int | None]]
 
 The modality may be a plain string or an enum member carrying one as its
 ``value``, so a provider SDK's own enum can be passed straight through.
+Token setters record only text, image, and audio; other modalities are ignored.
 """
 
 
