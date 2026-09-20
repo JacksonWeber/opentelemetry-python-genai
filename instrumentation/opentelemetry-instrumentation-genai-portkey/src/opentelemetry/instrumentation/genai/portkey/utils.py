@@ -444,6 +444,7 @@ def set_usage_properties(
                 output_details,
                 (
                     (Modality.TEXT, invocation.text_output_tokens),
+                    (Modality.IMAGE, invocation.image_output_tokens),
                     (Modality.AUDIO, invocation.audio_output_tokens),
                 ),
             )

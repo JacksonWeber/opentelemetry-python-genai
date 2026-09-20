@@ -60,6 +60,15 @@ _AUDIO_ATTRIBUTES = {
     "gen_ai.usage.audio.input_tokens": 25,
     "gen_ai.usage.audio.output_tokens": 5,
 }
+_IMAGE_OUTPUT_USAGE = {
+    **_TOTALS,
+    "completion_tokens_details": {"text_tokens": 8, "image_tokens": 12},
+}
+_IMAGE_OUTPUT_ATTRIBUTES = {
+    **_AGGREGATES,
+    "gen_ai.usage.text.output_tokens": 8,
+    "gen_ai.usage.image.output_tokens": 12,
+}
 _OPENAI_USAGE = {
     **_TOTALS,
     "prompt_tokens_details": {
@@ -219,6 +228,9 @@ def _usage_attributes(
             id="cache-without-nested-details",
         ),
         pytest.param(_AUDIO_USAGE, _AUDIO_ATTRIBUTES, id="audio"),
+        pytest.param(
+            _IMAGE_OUTPUT_USAGE, _IMAGE_OUTPUT_ATTRIBUTES, id="image-output"
+        ),
         pytest.param(_OPENAI_USAGE, _OPENAI_ATTRIBUTES, id="openai-details"),
         pytest.param(
             {**_TOTALS, "completion_tokens_details": {"reasoning_tokens": 7}},
@@ -298,6 +310,9 @@ async def test_sdk_detailed_usage(
     [
         pytest.param(_CACHE_USAGE, _CACHE_ATTRIBUTES, id="cache"),
         pytest.param(_AUDIO_USAGE, _AUDIO_ATTRIBUTES, id="audio"),
+        pytest.param(
+            _IMAGE_OUTPUT_USAGE, _IMAGE_OUTPUT_ATTRIBUTES, id="image-output"
+        ),
         pytest.param(_OPENAI_USAGE, _OPENAI_ATTRIBUTES, id="openai-details"),
     ],
 )
@@ -382,6 +397,7 @@ def test_invalid_detailed_counts_are_omitted(
                 },
                 "completion_tokens_details": {
                     "text_tokens": invalid,
+                    "image_tokens": invalid,
                     "audio_tokens": invalid,
                     "reasoning_tokens": invalid,
                 },
@@ -465,7 +481,10 @@ def test_partial_usage_snapshots_preserve_previous_counts(
                     text_tokens=50, image_tokens=25, audio_tokens=25
                 ),
                 completion_tokens_details=SimpleNamespace(
-                    text_tokens=15, audio_tokens=5, reasoning_tokens=7
+                    text_tokens=8,
+                    image_tokens=7,
+                    audio_tokens=5,
+                    reasoning_tokens=7,
                 ),
             ),
         )
@@ -483,6 +502,8 @@ def test_partial_usage_snapshots_preserve_previous_counts(
 
     assert _usage_attributes(span_exporter) == {
         **_OPENAI_ATTRIBUTES,
+        "gen_ai.usage.text.output_tokens": 8,
+        "gen_ai.usage.image.output_tokens": 7,
         "gen_ai.usage.input_tokens": 110,
         "gen_ai.usage.cache_write.input_tokens": 35,
         "gen_ai.usage.cache_read.input_tokens": 45,
@@ -496,6 +517,7 @@ def test_zero_details_replace_previous_counts_without_cache_fallback(
     with handler.inference(
         "portkey", request_model="test-model"
     ) as invocation:
+        set_usage_properties(invocation, _IMAGE_OUTPUT_USAGE)
         set_usage_properties(invocation, _OPENAI_USAGE)
         set_usage_properties(
             invocation,
@@ -511,6 +533,7 @@ def test_zero_details_replace_previous_counts_without_cache_fallback(
                 },
                 "completion_tokens_details": {
                     "text_tokens": 0,
+                    "image_tokens": 0,
                     "audio_tokens": 0,
                     "reasoning_tokens": 0,
                 },

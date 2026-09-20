@@ -59,9 +59,9 @@ for synchronous, asynchronous, and streaming calls:
 - Explicit ``text_tokens``, ``image_tokens``, and ``audio_tokens`` under
   ``usage.prompt_tokens_details`` record the corresponding
   ``gen_ai.usage.{text,image,audio}.input_tokens`` attributes.
-- Explicit ``text_tokens`` and ``audio_tokens`` under
+- Explicit ``text_tokens``, ``image_tokens``, and ``audio_tokens`` under
   ``usage.completion_tokens_details`` record
-  ``gen_ai.usage.{text,audio}.output_tokens``.
+  ``gen_ai.usage.{text,image,audio}.output_tokens``.
 - ``usage.completion_tokens_details.reasoning_tokens`` records
   ``gen_ai.usage.reasoning.output_tokens`` without adding to the reported
   output-token total.
