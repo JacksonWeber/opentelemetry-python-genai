@@ -411,6 +411,10 @@ def set_usage_properties(
 
     input_details = get_property_value(usage, "prompt_tokens_details")
     output_details = get_property_value(usage, "completion_tokens_details")
+    reasoning_tokens = _get_token_count(output_details, "reasoning_tokens")
+    if reasoning_tokens is not None:
+        invocation.thinking_tokens = reasoning_tokens
+
     cache_write = _get_token_count(input_details, "cache_write_tokens")
     if cache_write is None:
         cache_write = _get_token_count(usage, "cache_creation_input_tokens")

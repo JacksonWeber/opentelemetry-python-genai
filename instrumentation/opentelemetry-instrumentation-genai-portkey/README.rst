@@ -62,6 +62,9 @@ for synchronous, asynchronous, and streaming calls:
 - Explicit ``text_tokens`` and ``audio_tokens`` under
   ``usage.completion_tokens_details`` record
   ``gen_ai.usage.{text,audio}.output_tokens``.
+- ``usage.completion_tokens_details.reasoning_tokens`` records
+  ``gen_ai.usage.reasoning.output_tokens`` without adding to the reported
+  output-token total.
 
 Availability depends on the provider and model. Aggregate input and output
 totals are preserved, and modality counts are never inferred from those

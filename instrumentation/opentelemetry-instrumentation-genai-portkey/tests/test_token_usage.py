@@ -69,7 +69,11 @@ _OPENAI_USAGE = {
         "image_tokens": 25,
         "audio_tokens": 25,
     },
-    "completion_tokens_details": {"text_tokens": 15, "audio_tokens": 5},
+    "completion_tokens_details": {
+        "text_tokens": 15,
+        "audio_tokens": 5,
+        "reasoning_tokens": 7,
+    },
 }
 _OPENAI_ATTRIBUTES = {
     **_AUDIO_ATTRIBUTES,
@@ -77,6 +81,7 @@ _OPENAI_ATTRIBUTES = {
     "gen_ai.usage.text.input_tokens": 50,
     "gen_ai.usage.image.input_tokens": 25,
     "gen_ai.usage.text.output_tokens": 15,
+    "gen_ai.usage.reasoning.output_tokens": 7,
 }
 
 
@@ -215,6 +220,11 @@ def _usage_attributes(
         ),
         pytest.param(_AUDIO_USAGE, _AUDIO_ATTRIBUTES, id="audio"),
         pytest.param(_OPENAI_USAGE, _OPENAI_ATTRIBUTES, id="openai-details"),
+        pytest.param(
+            {**_TOTALS, "completion_tokens_details": {"reasoning_tokens": 7}},
+            {**_AGGREGATES, "gen_ai.usage.reasoning.output_tokens": 7},
+            id="reasoning-only",
+        ),
         pytest.param(_TOTALS, _AGGREGATES, id="aggregate-only"),
         pytest.param(None, {}, id="no-usage"),
     ],
@@ -373,6 +383,7 @@ def test_invalid_detailed_counts_are_omitted(
                 "completion_tokens_details": {
                     "text_tokens": invalid,
                     "audio_tokens": invalid,
+                    "reasoning_tokens": invalid,
                 },
             },
         )
@@ -454,7 +465,7 @@ def test_partial_usage_snapshots_preserve_previous_counts(
                     text_tokens=50, image_tokens=25, audio_tokens=25
                 ),
                 completion_tokens_details=SimpleNamespace(
-                    text_tokens=15, audio_tokens=5
+                    text_tokens=15, audio_tokens=5, reasoning_tokens=7
                 ),
             ),
         )
@@ -501,7 +512,46 @@ def test_zero_details_replace_previous_counts_without_cache_fallback(
                 "completion_tokens_details": {
                     "text_tokens": 0,
                     "audio_tokens": 0,
+                    "reasoning_tokens": 0,
                 },
             },
         )
     assert _usage_attributes(span_exporter) == _AGGREGATES
+
+
+@pytest.mark.parametrize(
+    "later_count,expected",
+    [
+        (None, 7),
+        (-1, 7),
+        (True, 7),
+        ("12", 7),
+        (1.5, 7),
+        ({}, 7),
+        ([], 7),
+        (0, 0),
+        (9, 9),
+    ],
+)
+def test_reasoning_usage_updates_preserve_valid_counts(
+    tracer_provider: TracerProvider,
+    span_exporter: InMemorySpanExporter,
+    later_count: object,
+    expected: int,
+) -> None:
+    handler = TelemetryHandler(tracer_provider=tracer_provider)
+    with handler.inference(
+        "portkey", request_model="test-model"
+    ) as invocation:
+        set_usage_properties(invocation, _OPENAI_USAGE)
+        set_usage_properties(
+            invocation,
+            {"completion_tokens_details": {"reasoning_tokens": later_count}},
+        )
+        assert invocation.thinking_tokens == expected
+    expected_attributes = dict(_OPENAI_ATTRIBUTES)
+    if expected:
+        expected_attributes["gen_ai.usage.reasoning.output_tokens"] = expected
+    else:
+        expected_attributes.pop("gen_ai.usage.reasoning.output_tokens")
+    assert _usage_attributes(span_exporter) == expected_attributes
