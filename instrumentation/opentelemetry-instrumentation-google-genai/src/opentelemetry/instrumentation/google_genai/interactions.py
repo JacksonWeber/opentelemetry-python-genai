@@ -590,6 +590,9 @@ def _output_type_from_format(response_format: object) -> str | None:
         "integer",
         "boolean",
         "null",
+        "json",
+        "json_object",
+        "json_schema",
     ):
         return output_types.JSON.value
     return None

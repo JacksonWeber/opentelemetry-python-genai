@@ -250,6 +250,20 @@ async def test_generation_config(
         ({"response_format": {"type": "image"}}, "image"),
         ({"response_format": {"type": "audio"}}, "speech"),
         ({"response_format": {"type": "object", "properties": {}}}, "json"),
+        ({"response_format": {"type": "json"}}, "json"),
+        ({"response_format": {"type": "json_object"}}, "json"),
+        ({"response_format": {"type": "json_schema"}}, "json"),
+        (
+            {
+                "response_format": [
+                    {"type": "json"},
+                    {"type": "json_object"},
+                    {"type": "json_schema"},
+                ]
+            },
+            "json",
+        ),
+        ({"response_format": [{"type": "json"}, {"type": "text"}]}, None),
         ({"response_format": [{"type": "text"}]}, "text"),
         ({"response_format": [{"type": "text"}, {"type": "image"}]}, None),
         (
