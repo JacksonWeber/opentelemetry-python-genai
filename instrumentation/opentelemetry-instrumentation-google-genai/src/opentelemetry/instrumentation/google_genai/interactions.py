@@ -550,7 +550,7 @@ def _output_type_from_mime_type(mime_type: object) -> str | None:
     output_types = GenAIAttributes.GenAiOutputTypeValues
     if mime_type == "application/json" or mime_type.endswith("+json"):
         return output_types.JSON.value
-    if mime_type == "text/plain":
+    if mime_type.startswith("text/"):
         return output_types.TEXT.value
     if mime_type.startswith("image/"):
         return output_types.IMAGE.value
