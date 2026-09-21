@@ -306,6 +306,7 @@ async def test_output_format(
 
 
 @pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.parametrize("name", ["temperature", "top_p"])
 @pytest.mark.parametrize(
     "value", [0, 0.0, 0.5, 1, float_info.max, int(float_info.max)]
 )
@@ -314,10 +315,11 @@ async def test_sampling_parameters_are_recorded_as_floats(
     instrumented: None,
     sdk: _SDK,
     span_exporter: InMemorySpanExporter,
+    name: str,
     value: float,
     asynchronous: bool,
 ) -> None:
-    config = {"temperature": value, "top_p": value}
+    config = {name: value}
     client = Client(api_key="test-key", vertexai=False)
     params = {
         "model": "gemini-2.5-flash",
@@ -332,10 +334,7 @@ async def test_sampling_parameters_are_recorded_as_floats(
     assert result is sdk.response
     assert sdk.calls[0]["generation_config"] is config
     attributes = _parameter_attributes(span_exporter)
-    assert attributes == {
-        "gen_ai.request.temperature": float(value),
-        "gen_ai.request.top_p": float(value),
-    }
+    assert attributes == {f"gen_ai.request.{name}": float(value)}
     assert all(type(attribute) is float for attribute in attributes.values())
 
 

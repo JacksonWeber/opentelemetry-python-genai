@@ -599,23 +599,23 @@ def _output_type_from_format(response_format: object) -> str | None:
     return None
 
 
+def _coerce_float(value: object) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int) and value > float_info.max:
+        return None
+    if isinstance(value, (int, float)) and value >= 0 and math.isfinite(value):
+        return float(value)
+    return None
+
+
 def _apply_interaction_request_attributes(
     invocation: InferenceInvocation | RemoteAgentInvocation,
     request: object,
 ) -> None:
     config = _explicit_request_fields(_get_field(request, "generation_config"))
-    for name in ("temperature", "top_p"):
-        value = _get_field(config, name)
-        if isinstance(value, int) and value > float_info.max:
-            continue
-        if (
-            isinstance(value, (int, float))
-            and not isinstance(value, bool)
-            and value >= 0
-            and math.isfinite(value)
-        ):
-            setattr(invocation, name, float(value))
-
+    invocation.temperature = _coerce_float(_get_field(config, "temperature"))
+    invocation.top_p = _coerce_float(_get_field(config, "top_p"))
     max_tokens = _get_field(config, "max_output_tokens")
     if isinstance(max_tokens, int) and not isinstance(max_tokens, bool):
         invocation.max_tokens = max_tokens
