@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass, field
+from sys import float_info
 from typing import Any
 
 import httpx
@@ -304,6 +305,41 @@ async def test_output_format(
     )
 
 
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.parametrize(
+    "value", [0, 0.0, 0.5, 1, float_info.max, int(float_info.max)]
+)
+@pytest.mark.asyncio
+async def test_sampling_parameters_are_recorded_as_floats(
+    instrumented: None,
+    sdk: _SDK,
+    span_exporter: InMemorySpanExporter,
+    value: float,
+    asynchronous: bool,
+) -> None:
+    config = {"temperature": value, "top_p": value}
+    client = Client(api_key="test-key", vertexai=False)
+    params = {
+        "model": "gemini-2.5-flash",
+        "input": "hello",
+        "generation_config": config,
+    }
+    result = (
+        await client.aio.interactions.create(**params)
+        if asynchronous
+        else client.interactions.create(**params)
+    )
+    assert result is sdk.response
+    assert sdk.calls[0]["generation_config"] is config
+    attributes = _parameter_attributes(span_exporter)
+    assert attributes == {
+        "gen_ai.request.temperature": float(value),
+        "gen_ai.request.top_p": float(value),
+    }
+    assert all(type(attribute) is float for attribute in attributes.values())
+
+
+@pytest.mark.parametrize("asynchronous", [False, True])
 @pytest.mark.parametrize(
     "config",
     [
@@ -318,16 +354,33 @@ async def test_output_format(
             "stop_sequences": "DONE",
         },
         {"temperature": 10**400, "top_p": float("inf"), "stop_sequences": [1]},
+        {"temperature": -0.5, "top_p": -1},
+        {"temperature": float("-inf"), "top_p": float("nan")},
+        {"temperature": -(10**400), "top_p": 10**400},
+        {"temperature": "0.5", "top_p": True},
     ],
 )
-def test_absent_or_invalid_config_is_not_recorded(
+@pytest.mark.asyncio
+async def test_absent_or_invalid_config_is_not_recorded(
     instrumented: None,
+    sdk: _SDK,
     span_exporter: InMemorySpanExporter,
     config: object,
+    asynchronous: bool,
 ) -> None:
-    Client(api_key="test-key", vertexai=False).interactions.create(
-        model="gemini-2.5-flash", input="hello", generation_config=config
+    client = Client(api_key="test-key", vertexai=False)
+    params = {
+        "model": "gemini-2.5-flash",
+        "input": "hello",
+        "generation_config": config,
+    }
+    result = (
+        await client.aio.interactions.create(**params)
+        if asynchronous
+        else client.interactions.create(**params)
     )
+    assert result is sdk.response
+    assert sdk.calls[0]["generation_config"] is config
     assert _parameter_attributes(span_exporter) == {}
 
 

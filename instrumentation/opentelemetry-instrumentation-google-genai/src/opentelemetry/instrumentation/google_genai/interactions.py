@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import AsyncIterable, Callable, Iterable, Sequence
 from sys import float_info
 from typing import Any, cast
@@ -605,10 +606,13 @@ def _apply_interaction_request_attributes(
     config = _explicit_request_fields(_get_field(request, "generation_config"))
     for name in ("temperature", "top_p"):
         value = _get_field(config, name)
+        if isinstance(value, int) and value > float_info.max:
+            continue
         if (
             isinstance(value, (int, float))
             and not isinstance(value, bool)
-            and -float_info.max <= value <= float_info.max
+            and value >= 0
+            and math.isfinite(value)
         ):
             setattr(invocation, name, float(value))
 
