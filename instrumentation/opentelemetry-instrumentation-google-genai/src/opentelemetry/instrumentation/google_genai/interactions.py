@@ -623,8 +623,10 @@ def _apply_interaction_request_attributes(
     if isinstance(seed, int) and not isinstance(seed, bool):
         invocation.seed = seed
     stop_sequences = _get_field(config, "stop_sequences")
-    if isinstance(stop_sequences, (list, tuple)) and all(
-        isinstance(item, str) for item in stop_sequences
+    if (
+        isinstance(stop_sequences, (list, tuple))
+        and stop_sequences
+        and all(isinstance(item, str) for item in stop_sequences)
     ):
         invocation.stop_sequences = list(stop_sequences)
 

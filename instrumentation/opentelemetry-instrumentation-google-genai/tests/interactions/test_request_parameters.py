@@ -346,6 +346,8 @@ async def test_sampling_parameters_are_recorded_as_floats(
         None,
         {},
         {"temperature": None, "top_p": None, "seed": None},
+        {"stop_sequences": []},
+        {"stop_sequences": ()},
         {
             "temperature": True,
             "top_p": float("nan"),
