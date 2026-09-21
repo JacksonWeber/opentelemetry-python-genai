@@ -517,12 +517,22 @@ def _maybe_get_tool_definitions(
     return definitions if definitions else None
 
 
+def _explicit_request_fields(value: object) -> object:
+    fields = getattr(value, "__dict__", value)
+    supplied = getattr(value, "model_fields_set", None)
+    if isinstance(fields, dict) and isinstance(supplied, set):
+        # Model dumps can serialize lazy content; stored fields also avoid
+        # invoking the SDK's deprecated property accessors.
+        extra = getattr(value, "model_extra", None)
+        if isinstance(extra, dict):
+            fields = fields | extra
+        return {name: fields[name] for name in supplied if name in fields}
+    return fields
+
+
 def _interaction_request(kwargs: dict[str, Any]) -> object:
     body = _get_field(kwargs.get("request"), "body")
-    if body is None:
-        return kwargs
-    # Read stored model fields without triggering SDK deprecation warnings.
-    return getattr(body, "__dict__", body)
+    return _explicit_request_fields(body) if body is not None else kwargs
 
 
 def _is_interaction_stream(response: object, request: object) -> bool:
@@ -589,7 +599,7 @@ def _apply_interaction_request_attributes(
     invocation: InferenceInvocation | RemoteAgentInvocation,
     request: object,
 ) -> None:
-    config = _get_field(request, "generation_config")
+    config = _explicit_request_fields(_get_field(request, "generation_config"))
     for name in ("temperature", "top_p"):
         value = _get_field(config, name)
         if (

@@ -317,6 +317,118 @@ def test_absent_or_invalid_config_is_not_recorded(
     assert _parameter_attributes(span_exporter) == {}
 
 
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.parametrize("shape", ["kwargs", "request-dict", "request-model"])
+@pytest.mark.parametrize("explicit_seed", [False, True])
+@pytest.mark.asyncio
+async def test_config_model_defaults_are_not_recorded(
+    instrumented: None,
+    sdk: _SDK,
+    span_exporter: InMemorySpanExporter,
+    asynchronous: bool,
+    shape: str,
+    explicit_seed: bool,
+) -> None:
+    class DefaultConfig(GenerationConfig):
+        temperature: float = 0.75
+        top_p: float = 0.95
+        max_output_tokens: int = 512
+        seed: int = 31
+        stop_sequences: list[str] = ["DEFAULT"]
+
+        def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            raise AssertionError("Instrumentation must not serialize config")
+
+    config = DefaultConfig(seed=0) if explicit_seed else DefaultConfig()
+    params = _request(
+        {
+            "model": "gemini-2.5-flash",
+            "input": "hello",
+            "generation_config": config,
+        },
+        shape,
+    )
+    client = Client(api_key="test-key", vertexai=False)
+    if asynchronous:
+        result = await client.aio.interactions.create(**params)
+    else:
+        result = client.interactions.create(**params)
+
+    assert result is sdk.response
+    assert all(sdk.calls[0][key] is value for key, value in params.items())
+    assert _parameter_attributes(span_exporter) == (
+        {"gen_ai.request.seed": 0} if explicit_seed else {}
+    )
+    assert config.max_output_tokens == 512
+    assert config.model_fields_set == ({"seed"} if explicit_seed else set())
+
+
+@pytest.mark.skipif(not _HAS_REQUEST_BODY, reason="SDK predates request.body")
+@pytest.mark.parametrize("asynchronous", [False, True])
+@pytest.mark.parametrize("explicit_config", [False, True])
+@pytest.mark.asyncio
+async def test_request_model_defaults_are_not_recorded(
+    instrumented: None,
+    sdk: _SDK,
+    span_exporter: InMemorySpanExporter,
+    asynchronous: bool,
+    explicit_config: bool,
+) -> None:
+    class DefaultBody(CreateModelInteraction):
+        generation_config: GenerationConfig = GenerationConfig(
+            seed=31, max_output_tokens=512
+        )
+        response_format: TextResponseFormat = TextResponseFormat(
+            type="text", mime_type="application/json"
+        )
+
+        def model_dump(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+            raise AssertionError("Instrumentation must not serialize request")
+
+    body = DefaultBody(
+        model="gemini-2.5-flash",
+        input="hello",
+        **(
+            {"generation_config": GenerationConfig(seed=0)}
+            if explicit_config
+            else {}
+        ),
+    )
+    request = CreateInteractionRequest(body=body)
+    client = Client(api_key="test-key", vertexai=False)
+    if asynchronous:
+        result = await client.aio.interactions.create(request=request)
+    else:
+        result = client.interactions.create(request=request)
+
+    assert result is sdk.response
+    assert sdk.calls[0]["request"] is request
+    assert _parameter_attributes(span_exporter) == (
+        {"gen_ai.request.seed": 0} if explicit_config else {}
+    )
+    assert body.model_fields_set == (
+        {"model", "input", "generation_config"}
+        if explicit_config
+        else {"model", "input"}
+    )
+
+
+def test_explicit_config_model_extra_fields_are_recorded(
+    instrumented: None, span_exporter: InMemorySpanExporter
+) -> None:
+    class ExtraConfig(GenerationConfig):
+        model_config = {"extra": "allow"}
+
+    config = ExtraConfig(temperature=0.0, top_p=0.5)
+    Client(api_key="test-key", vertexai=False).interactions.create(
+        model="gemini-2.5-flash", input="hello", generation_config=config
+    )
+    assert _parameter_attributes(span_exporter) == {
+        "gen_ai.request.temperature": 0.0,
+        "gen_ai.request.top_p": 0.5,
+    }
+
+
 def test_iterable_config_content_is_not_consumed(
     instrumented: None, span_exporter: InMemorySpanExporter
 ) -> None:
