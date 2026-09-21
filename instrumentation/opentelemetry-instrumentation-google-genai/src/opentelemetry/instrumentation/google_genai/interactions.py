@@ -4,7 +4,13 @@
 from __future__ import annotations
 
 import math
-from collections.abc import AsyncIterable, Callable, Iterable, Sequence
+from collections.abc import (
+    AsyncIterable,
+    Callable,
+    Iterable,
+    Mapping,
+    Sequence,
+)
 from sys import float_info
 from typing import Any, cast
 
@@ -518,10 +524,13 @@ def _maybe_get_tool_definitions(
     return definitions if definitions else None
 
 
-def _explicit_request_fields(value: object) -> object:
-    fields = getattr(value, "__dict__", value)
+def _explicit_request_fields(value: object) -> Mapping[str, object]:
+    stored_fields = getattr(value, "__dict__", value)
+    if not isinstance(stored_fields, dict):
+        return {}
+    fields: dict[str, object] = stored_fields
     supplied = getattr(value, "model_fields_set", None)
-    if isinstance(fields, dict) and isinstance(supplied, set):
+    if isinstance(supplied, set):
         # Model dumps can serialize lazy content; stored fields also avoid
         # invoking the SDK's deprecated property accessors.
         extra = getattr(value, "model_extra", None)
@@ -531,12 +540,14 @@ def _explicit_request_fields(value: object) -> object:
     return fields
 
 
-def _interaction_request(kwargs: dict[str, Any]) -> object:
+def _interaction_request(kwargs: dict[str, Any]) -> Mapping[str, object]:
     body = _get_field(kwargs.get("request"), "body")
     return _explicit_request_fields(body) if body is not None else kwargs
 
 
-def _is_interaction_stream(response: object, request: object) -> bool:
+def _is_interaction_stream(
+    response: object, request: Mapping[str, object]
+) -> bool:
     if isinstance(response, (Stream, AsyncStream)):
         return True
     if isinstance(response, Interaction):
@@ -611,7 +622,7 @@ def _coerce_float(value: object) -> float | None:
 
 def _apply_interaction_request_attributes(
     invocation: InferenceInvocation | RemoteAgentInvocation,
-    request: object,
+    request: Mapping[str, object],
 ) -> None:
     config = _explicit_request_fields(_get_field(request, "generation_config"))
     invocation.temperature = _coerce_float(_get_field(config, "temperature"))
@@ -643,7 +654,7 @@ def _apply_interaction_request_attributes(
 def _start_interactions_invocation(
     telemetry_handler: TelemetryHandler,
     instance: InteractionsResource | AsyncInteractionsResource,
-    request: object,
+    request: Mapping[str, object],
 ) -> InferenceInvocation | RemoteAgentInvocation:
     # Vertex AI does not support the interactions API yet, but eventually will.
     # SDK will raise an exception if model or agent is not passed or if input data is not passed.

@@ -21,6 +21,7 @@ from opentelemetry.instrumentation.google_genai.interactions import (
     _HAS_INTERACTIONS,
     AsyncInteractionsResource,
     InteractionsResource,
+    _explicit_request_fields,
 )
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import InMemoryLogRecordExporter
@@ -160,6 +161,11 @@ def _parameter_attributes(
             "gen_ai.output.type",
         )
     }
+
+
+@pytest.mark.parametrize("value", [None, 1, "invalid", []])
+def test_non_mapping_request_fields_are_normalized(value: object) -> None:
+    assert _explicit_request_fields(value) == {}
 
 
 @pytest.mark.parametrize("asynchronous", [False, True])
