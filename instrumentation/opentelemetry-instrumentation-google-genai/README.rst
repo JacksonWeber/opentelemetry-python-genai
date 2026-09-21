@@ -115,29 +115,6 @@ captured using the following environment variables:
 If both variables are set, the includes list is applied first, then the
 excludes list filters the result further.
 
-Interactions request parameters
-*******************************
-
-For ``client.interactions.create`` and its asynchronous equivalent, the
-instrumentation records explicitly supplied ``generation_config`` fields:
-``temperature``, ``top_p``, ``max_output_tokens``, ``seed``, and
-``stop_sequences``. These map to the corresponding ``gen_ai.request.*``
-attributes, with ``max_output_tokens`` recorded as ``gen_ai.request.max_tokens``.
-Field availability depends on the SDK version; newer SDKs no longer declare
-``temperature`` or ``top_p``.
-
-Configuration can be a dictionary or an SDK configuration object. SDK versions
-supporting ``request.body`` are also handled. The attributes are recorded for
-streamed responses and failed requests, without enabling message-content
-capture or the ``GenerateContentConfig`` allowlist settings above.
-
-The separate ``response_format`` and ``response_mime_type`` request fields
-set ``gen_ai.output.type`` to ``text``, ``json``, ``image``, or ``speech`` when
-the requested format can be represented by one type. Mixed output formats
-and unsupported formats are not assigned an output type. Missing parameters
-are not replaced with SDK defaults, and iterators are not consumed to capture
-configuration.
-
 
 Uninstrument
 ************
