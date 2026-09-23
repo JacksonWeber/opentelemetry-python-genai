@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import logging
 
 import pytest
 from llama_index.core.base.base_retriever import BaseRetriever
@@ -44,26 +45,138 @@ def test_retrieval_documents_use_shared_model_without_reading_content(
 
 
 class _Retriever(BaseRetriever):
-    def __init__(self, error: BaseException | None = None) -> None:
+    def __init__(
+        self,
+        error: BaseException | None = None,
+        *,
+        nodes: list[NodeWithScore] | None = None,
+    ) -> None:
         super().__init__()
         self.similarity_top_k = 2
         self._error = error
+        self._nodes = (
+            nodes
+            if nodes is not None
+            else [
+                NodeWithScore(
+                    node=TextNode(id_="doc-1", text="Paris is in France."),
+                    score=0.9,
+                )
+            ]
+        )
 
     def _retrieve(self, query_bundle: QueryBundle) -> list[NodeWithScore]:
         if self._error:
             raise self._error
-        return [
-            NodeWithScore(
-                node=TextNode(id_="doc-1", text="Paris is in France."),
-                score=0.9,
-            )
-        ]
+        return self._nodes
 
 
 def _span(exporter):
     spans = [s for s in exporter.get_finished_spans() if s.name == "retrieval"]
     assert len(spans) == 1
     return spans[0]
+
+
+@pytest.mark.parametrize("attribute", ["node_id", "score"])
+@pytest.mark.parametrize("error_type", [RuntimeError, BaseException])
+def test_retrieval_documents_skip_broken_accessors(
+    attribute: str,
+    error_type: type[BaseException],
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    class BrokenNodeWithScore(NodeWithScore):
+        def __getattribute__(self, name: str) -> object:
+            if name == attribute:
+                raise error_type("broken document accessor")
+            return super().__getattribute__(name)
+
+    broken = BrokenNodeWithScore(node=TextNode(id_="broken"), score=0.5)
+    valid = NodeWithScore(node=TextNode(id_="valid"), score=0.0)
+    with caplog.at_level(logging.WARNING):
+        assert _retrieval_documents([valid, broken, valid]) == [
+            RetrievalDocument(id="valid", score=0.0),
+            RetrievalDocument(id="valid", score=0.0),
+        ]
+        assert _retrieval_documents([broken]) is None
+    assert len(caplog.records) == 2
+    assert all(
+        record.message == "Failed to extract retrieval document attributes"
+        for record in caplog.records
+    )
+
+
+@pytest.mark.parametrize("is_async", [False, True])
+@pytest.mark.asyncio
+async def test_broken_document_does_not_change_retrieval_result(
+    span_exporter, instrument_llama_index_with_content, is_async: bool
+) -> None:
+    class BrokenNodeWithScore(NodeWithScore):
+        @property
+        def node_id(self) -> str:
+            raise RuntimeError("broken document ID")
+
+    broken = BrokenNodeWithScore(node=TextNode(id_="broken"), score=0.5)
+    valid = NodeWithScore(node=TextNode(id_="valid"), score=0.9)
+    retriever = _Retriever(nodes=[broken, valid])
+    result = (
+        await retriever.aretrieve("query")
+        if is_async
+        else retriever.retrieve("query")
+    )
+
+    assert len(result) == 2
+    assert result[0] is broken
+    assert result[1] is valid
+    span = _span(span_exporter)
+    assert span.status.status_code == StatusCode.UNSET
+    assert ErrorAttributes.ERROR_TYPE not in span.attributes
+    assert json.loads(
+        span.attributes[GenAIAttributes.GEN_AI_RETRIEVAL_DOCUMENTS]
+    ) == [{"id": "valid", "score": 0.9}]
+
+
+@pytest.mark.parametrize("is_async", [False, True])
+@pytest.mark.parametrize(
+    "score, expected",
+    [
+        (float("nan"), None),
+        (float("inf"), None),
+        (float("-inf"), None),
+        (None, None),
+        (0.0, 0.0),
+        (-0.5, -0.5),
+        (0.9, 0.9),
+    ],
+)
+@pytest.mark.asyncio
+async def test_retrieval_scores_serialize_as_valid_json(
+    span_exporter,
+    instrument_llama_index_with_content,
+    is_async: bool,
+    score: float | None,
+    expected: float | None,
+) -> None:
+    node = NodeWithScore(node=TextNode(id_="doc-1"), score=score)
+    retriever = _Retriever(nodes=[node])
+    result = (
+        await retriever.aretrieve("query")
+        if is_async
+        else retriever.retrieve("query")
+    )
+    assert result[0] is node
+    span = _span(span_exporter)
+    raw = span.attributes[GenAIAttributes.GEN_AI_RETRIEVAL_DOCUMENTS]
+    assert type(raw) is str
+    documents = json.loads(
+        raw,
+        parse_constant=lambda value: pytest.fail(
+            f"Non-standard JSON constant: {value}"
+        ),
+    )
+    assert documents == [{"id": "doc-1", "score": expected}]
+    if expected is not None:
+        assert type(documents[0]["score"]) is float
+    assert span.status.status_code == StatusCode.UNSET
 
 
 def test_retrieval_captures_documents_and_query(

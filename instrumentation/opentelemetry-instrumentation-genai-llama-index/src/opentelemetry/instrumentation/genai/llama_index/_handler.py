@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import contextvars
 import inspect
+import logging
+import math
 from base64 import b64decode
 from binascii import Error as BinasciiError
 from collections.abc import Callable, Mapping, MutableMapping, Sequence
@@ -69,6 +71,8 @@ from opentelemetry.util.genai.types import (
     ToolDefinition,
     UriPart,
 )
+
+_logger = logging.getLogger(__name__)
 
 _ToolExecutionAttributes = tuple[str, str | None]
 _AGENT_TOOL_ATTRIBUTES: ContextVar[
@@ -337,9 +341,18 @@ def _retrieval_documents(
     for candidate in candidates:
         if not isinstance(candidate, NodeWithScore):
             continue
-        documents.append(
-            RetrievalDocument(id=candidate.node_id, score=candidate.score)
-        )
+        try:
+            document_id = candidate.node_id
+            score = candidate.score
+            if score is not None and not math.isfinite(score):
+                score = None
+        except BaseException:
+            _logger.warning(
+                "Failed to extract retrieval document attributes",
+                exc_info=True,
+            )
+            continue
+        documents.append(RetrievalDocument(id=document_id, score=score))
     # Preserve [] for a genuine empty result, but omit the attribute when a
     # non-empty result could not be converted into semantic-convention docs.
     if documents:
