@@ -24,6 +24,17 @@ See the module docstring in ``opentelemetry.util.genai.handler`` for usage examp
 including context manager and manual lifecycle patterns.
 
 
+Context Management and Propagation
+----------------------------------
+
+Invocation factory methods on ``TelemetryHandler`` (such as ``inference``, ``workflow``, ``tool``,
+``embedding``, ``retrieval``, and ``invoke_local_agent``) accept an optional ``context`` keyword argument
+to manage context:
+
+- ``context``: An explicit OpenTelemetry ``Context`` to parent the span. When omitted, the current
+  ambient context is used.
+
+
 Modalities
 ----------
 
