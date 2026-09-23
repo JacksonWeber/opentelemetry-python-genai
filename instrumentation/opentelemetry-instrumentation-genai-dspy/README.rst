@@ -35,6 +35,16 @@ Message content capture is disabled by default. Set
 ``NO_CONTENT``, ``SPAN_ONLY``, ``EVENT_ONLY``, or ``SPAN_AND_EVENT`` to record
 prompts, completions, and module inputs/outputs.
 
+Retrieval document capture
+--------------------------
+
+In ``SPAN_ONLY`` or ``SPAN_AND_EVENT`` mode, retrieval spans capture the query
+and a ``gen_ai.retrieval.documents`` entry for each returned passage using the
+shared ``RetrievalDocument`` model. DSPy's ``Retrieve`` returns passage text
+without document IDs or scores, so both ``id`` and ``score`` are JSON ``null``.
+Passage text is no longer recorded in the document entries; query text
+capture is unchanged.
+
 Uploading prompts and completions
 ---------------------------------
 

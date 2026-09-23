@@ -56,6 +56,7 @@ from opentelemetry.util.genai.types import (
     InputMessage,
     MessagePart,
     OutputMessage,
+    RetrievalDocument,
     Role,
     TextPart,
     ToolCallRequestPart,
@@ -142,32 +143,18 @@ def _extract_document_score(doc: Any) -> float | int | None:
     return None
 
 
-def _document_to_dict(doc: Any) -> dict[str, Any]:
-    """Convert a Document, duck-typed document object, or Mapping to a dict.
-
-    Extracts content (checking page_content first, then content), id,
-    and conditionally score if present and numeric.
-    """
+def _document_to_retrieval_document(doc: object) -> RetrievalDocument:
+    """Extract only the standard document ID and relevance score."""
     if isinstance(doc, Mapping):
-        doc_map = cast(Mapping[str, Any], doc)
-        content = doc_map.get("page_content")
-        if content is None:
-            content = doc_map.get("content")
+        doc_map = cast(Mapping[str, object], doc)
         doc_id = doc_map.get("id")
     else:
-        content = getattr(doc, "page_content", None)
-        if content is None:
-            content = getattr(doc, "content", None)
         doc_id = getattr(doc, "id", None)
 
-    doc_dict: dict[str, Any] = {
-        "content": content,
-        "id": doc_id,
-    }
-    score = _extract_document_score(doc)
-    if score is not None:
-        doc_dict["score"] = score
-    return doc_dict
+    return RetrievalDocument(
+        id=doc_id if isinstance(doc_id, str) else None,
+        score=_extract_document_score(doc),
+    )
 
 
 class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
@@ -815,7 +802,7 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
 
         if self._telemetry_handler.should_capture_content():
             invocation.documents = [
-                _document_to_dict(doc) for doc in documents
+                _document_to_retrieval_document(doc) for doc in documents
             ]
         invocation.stop()
         self._invocation_manager.delete_invocation_state(run_id)

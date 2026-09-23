@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Final
+from typing import Final
 
 from opentelemetry._logs import Logger
 from opentelemetry.semconv._incubating.attributes import (
@@ -15,6 +15,7 @@ from opentelemetry.trace import SpanKind, Tracer
 from opentelemetry.util.genai._instruments import _Instruments
 from opentelemetry.util.genai._invocation import Error, GenAIInvocation
 from opentelemetry.util.genai.completion_hook import CompletionHook
+from opentelemetry.util.genai.types import RetrievalDocument
 from opentelemetry.util.genai.utils import (
     ContentCapturingMode,
     gen_ai_json_dumps,
@@ -91,7 +92,14 @@ class RetrievalInvocation(GenAIInvocation):
         self._server_port: int | None = server_port
         self.top_k: int | None = None
         self.query_text: str | None = None
-        self.documents: Sequence[Mapping[str, Any]] | None = None
+        self.documents: (
+            Sequence[RetrievalDocument | Mapping[str, object]] | None
+        ) = None
+        """Retrieved document models, captured only in span content modes.
+
+        Passing mappings is deprecated; use ``RetrievalDocument`` instead.
+        Legacy mappings are still serialized unchanged.
+        """
 
     def _get_metric_attributes(self) -> dict[str, AttributeValue]:
         # data_source_id intentionally excluded — high cardinality

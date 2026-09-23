@@ -52,6 +52,26 @@ also accept raw strings should use ``Modality | str`` rather than ``Modality``
 alone. Custom modalities remain strings, not additional enum members.
 
 
+Retrieval Documents
+-------------------
+
+Set ``RetrievalInvocation.documents`` using
+``opentelemetry.util.genai.types.RetrievalDocument`` objects:
+
+.. code-block:: python
+
+    from opentelemetry.util.genai.types import RetrievalDocument
+
+    with handler.retrieval(data_source_id="my-index") as invocation:
+        invocation.documents = [RetrievalDocument(id="doc-1", score=0.9)]
+
+The model contains only the optional ``id`` and ``score`` fields; unset
+fields serialize as JSON ``null``. Documents are recorded in
+``gen_ai.retrieval.documents`` only in ``SPAN_ONLY`` or ``SPAN_AND_EVENT``
+content-capture mode. Passing dictionaries is deprecated, but existing
+dictionary payloads continue to serialize unchanged.
+
+
 Environment Variables
 ---------------------
 

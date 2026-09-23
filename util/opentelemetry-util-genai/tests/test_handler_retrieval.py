@@ -26,7 +26,7 @@ from opentelemetry.util.genai.environment_variables import (
 )
 from opentelemetry.util.genai.handler import TelemetryHandler
 from opentelemetry.util.genai.invocation import RetrievalInvocation
-from opentelemetry.util.genai.types import Error
+from opentelemetry.util.genai.types import Error, RetrievalDocument
 
 
 class _RetrievalTestBase(TestCase):
@@ -201,6 +201,99 @@ class TelemetryHandlerRetrievalTest(_RetrievalTestBase):  # pylint: disable=too-
     @patch.dict(
         os.environ,
         {
+            OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "SPAN_ONLY",
+        },
+    )
+    def test_typed_documents_on_success_and_failure(self) -> None:
+        for failed in (False, True):
+            with self.subTest(failed=failed):
+                self.span_exporter.clear()
+                handler = TelemetryHandler(
+                    tracer_provider=self.tracer_provider
+                )
+                invocation = handler.retrieval()
+                invocation.documents = [
+                    RetrievalDocument(id="doc-1", score=0.95),
+                    RetrievalDocument(id="doc-2", score=0.0),
+                    RetrievalDocument(id="doc-3"),
+                    RetrievalDocument(score=0.5),
+                    RetrievalDocument(),
+                ]
+                if failed:
+                    invocation.fail(ValueError("retrieval failed"))
+                else:
+                    invocation.stop()
+
+                span = self._get_finished_spans()[0]
+                raw = span.attributes[GenAI.GEN_AI_RETRIEVAL_DOCUMENTS]
+                self.assertIsInstance(raw, str)
+                documents = json.loads(raw)
+                self.assertEqual(
+                    documents,
+                    [
+                        {"id": "doc-1", "score": 0.95},
+                        {"id": "doc-2", "score": 0.0},
+                        {"id": "doc-3", "score": None},
+                        {"id": None, "score": 0.5},
+                        {"id": None, "score": None},
+                    ],
+                )
+                self.assertIsInstance(documents[0]["id"], str)
+                self.assertIsInstance(documents[0]["score"], float)
+                if failed:
+                    self.assertEqual(span.status.status_code, StatusCode.ERROR)
+                    self.assertEqual(
+                        span.attributes["error.type"], "ValueError"
+                    )
+                else:
+                    self.assertEqual(span.status.status_code, StatusCode.UNSET)
+
+    @patch.dict(
+        os.environ,
+        {
+            OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "SPAN_ONLY",
+        },
+    )
+    def test_documents_preserve_legacy_mappings_alongside_models(self) -> None:
+        legacy = {
+            "id": "legacy",
+            "content": "text",
+            "metadata": {"source": "db"},
+        }
+        handler = TelemetryHandler(tracer_provider=self.tracer_provider)
+        invocation = handler.retrieval()
+        invocation.documents = [legacy, RetrievalDocument(id="typed")]
+        invocation.stop()
+
+        raw = self._get_finished_spans()[0].attributes[
+            GenAI.GEN_AI_RETRIEVAL_DOCUMENTS
+        ]
+        self.assertEqual(
+            json.loads(raw), [legacy, {"id": "typed", "score": None}]
+        )
+
+    @patch.dict(
+        os.environ,
+        {
+            OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "SPAN_ONLY",
+        },
+    )
+    def test_empty_documents_are_distinct_from_absent_documents(self) -> None:
+        handler = TelemetryHandler(tracer_provider=self.tracer_provider)
+        with handler.retrieval() as invocation:
+            invocation.documents = []
+        with handler.retrieval():
+            pass
+
+        empty, absent = self._get_finished_spans()
+        self.assertEqual(
+            empty.attributes[GenAI.GEN_AI_RETRIEVAL_DOCUMENTS], "[]"
+        )
+        self.assertNotIn(GenAI.GEN_AI_RETRIEVAL_DOCUMENTS, absent.attributes)
+
+    @patch.dict(
+        os.environ,
+        {
             OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "EVENT_ONLY",
         },
     )
@@ -208,7 +301,7 @@ class TelemetryHandlerRetrievalTest(_RetrievalTestBase):  # pylint: disable=too-
         self,
     ) -> None:
         handler = TelemetryHandler(tracer_provider=self.tracer_provider)
-        docs = [{"id": "doc_1", "score": 0.95}]
+        docs = [RetrievalDocument(id="doc_1", score=0.95)]
         invocation = handler.retrieval()
         assert invocation.should_capture_content is True
         invocation.query_text = "What is the capital of France?"
@@ -224,7 +317,7 @@ class TelemetryHandlerRetrievalTest(_RetrievalTestBase):  # pylint: disable=too-
     def test_stop_suppresses_documents_when_content_capture_disabled(
         self,
     ) -> None:
-        docs = [{"id": "doc_1", "score": 0.95}]
+        docs = [RetrievalDocument(id="doc_1", score=0.95)]
         invocation = self.handler.retrieval()
         invocation.documents = docs
         invocation.stop()

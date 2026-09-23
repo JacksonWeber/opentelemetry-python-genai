@@ -80,6 +80,15 @@ directly with ``instrument(completion_hook=...)``. See
 `examples/manual/custom_hook.py <examples/manual/custom_hook.py>`_ for a
 programmatic example.
 
+Retrieval document capture
+--------------------------
+
+In ``SPAN_ONLY`` or ``SPAN_AND_EVENT`` mode, retrieval spans capture query
+text and ``gen_ai.retrieval.documents`` using the shared ``RetrievalDocument``
+model. Each document contains only its ``id`` and ``score``; a missing score
+is JSON ``null``. Retrieved node text is no longer captured in document
+entries. Query text capture is unchanged.
+
 References
 ----------
 

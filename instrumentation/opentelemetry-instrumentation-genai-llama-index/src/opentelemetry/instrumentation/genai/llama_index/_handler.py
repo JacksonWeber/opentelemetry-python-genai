@@ -61,6 +61,7 @@ from opentelemetry.util.genai.types import (
     Modality,
     OutputMessage,
     ReasoningPart,
+    RetrievalDocument,
     Role,
     SystemInstructionPart,
     TextPart,
@@ -327,25 +328,18 @@ def _retrieval_top_k(retriever: BaseRetriever) -> int | None:
 
 def _retrieval_documents(
     result: object,
-) -> list[dict[str, Any]] | None:
+) -> list[RetrievalDocument] | None:
     """Convert retrieved LlamaIndex nodes to semconv document objects."""
     if not isinstance(result, Sequence):
         return None
     candidates = cast(Sequence[object], result)
-    documents: list[dict[str, Any]] = []
+    documents: list[RetrievalDocument] = []
     for candidate in candidates:
         if not isinstance(candidate, NodeWithScore):
             continue
-        try:
-            document: dict[str, Any] = {
-                "id": candidate.node_id,
-                "content": candidate.node.get_content(),
-            }
-            if candidate.score is not None:
-                document["score"] = candidate.score
-            documents.append(document)
-        except BaseException:
-            continue
+        documents.append(
+            RetrievalDocument(id=candidate.node_id, score=candidate.score)
+        )
     # Preserve [] for a genuine empty result, but omit the attribute when a
     # non-empty result could not be converted into semantic-convention docs.
     if documents:

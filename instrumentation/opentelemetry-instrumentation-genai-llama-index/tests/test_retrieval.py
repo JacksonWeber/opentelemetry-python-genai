@@ -19,6 +19,7 @@ from opentelemetry.semconv.attributes import (
     error_attributes as ErrorAttributes,
 )
 from opentelemetry.trace import SpanKind, StatusCode
+from opentelemetry.util.genai.types import RetrievalDocument
 
 _GEN_AI_RETRIEVAL_TOP_K = "gen_ai.retrieval.top_k"
 
@@ -26,6 +27,20 @@ _GEN_AI_RETRIEVAL_TOP_K = "gen_ai.retrieval.top_k"
 def test_unconvertible_retrieval_results_are_omitted() -> None:
     assert _retrieval_documents([]) == []
     assert _retrieval_documents([object()]) is None
+
+
+@pytest.mark.parametrize("score", [None, 0.0, 0.9])
+def test_retrieval_documents_use_shared_model_without_reading_content(
+    score: float | None,
+) -> None:
+    class LazyTextNode(TextNode):
+        def get_content(self, *args: object, **kwargs: object) -> str:
+            raise AssertionError("node content must not be read")
+
+    nodes = [NodeWithScore(node=LazyTextNode(id_="doc-1"), score=score)]
+    assert _retrieval_documents(nodes) == [
+        RetrievalDocument(id="doc-1", score=score)
+    ]
 
 
 class _Retriever(BaseRetriever):
@@ -68,9 +83,9 @@ def test_retrieval_captures_documents_and_query(
     assert type(documents) is str
     assert top_k == 2
     assert query_text == "Where is Paris?"
-    assert json.loads(documents) == [
-        {"id": "doc-1", "content": "Paris is in France.", "score": 0.9}
-    ]
+    assert json.loads(documents) == [{"id": "doc-1", "score": 0.9}]
+    assert type(json.loads(documents)[0]["id"]) is str
+    assert type(json.loads(documents)[0]["score"]) is float
 
 
 def test_retrieval_query_bundle_captures_query(
@@ -120,9 +135,7 @@ async def test_async_retrieval_captures_query_and_documents(
     assert type(query_text) is str
     assert type(documents) is str
     assert query_text == "Where is Paris?"
-    assert json.loads(documents) == [
-        {"id": "doc-1", "content": "Paris is in France.", "score": 0.9}
-    ]
+    assert json.loads(documents) == [{"id": "doc-1", "score": 0.9}]
 
 
 def test_sync_retrieval_error_is_unchanged(

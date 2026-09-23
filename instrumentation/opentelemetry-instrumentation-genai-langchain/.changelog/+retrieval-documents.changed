@@ -1,0 +1,1 @@
+Use the shared RetrievalDocument model to capture only document IDs and scores, with null for unavailable fields, instead of document text.

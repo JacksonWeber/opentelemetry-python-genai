@@ -34,6 +34,7 @@ from opentelemetry.util.genai.invocation import (
 from opentelemetry.util.genai.types import (
     InputMessage,
     OutputMessage,
+    RetrievalDocument,
     TextPart,
 )
 from opentelemetry.util.genai.utils import bind_arguments
@@ -485,7 +486,8 @@ def _set_retrieval_invocation_documents(
     if passages is None:
         return
 
-    invocation.documents = [{"content": str(psg)} for psg in passages]
+    # Retrieve returns passage text, without document IDs or scores.
+    invocation.documents = [RetrievalDocument() for _ in passages]
 
 
 def _retrieve_forward(
