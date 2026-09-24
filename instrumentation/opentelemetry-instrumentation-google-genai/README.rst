@@ -90,17 +90,6 @@ This controls whether the following content is captured on spans and/or events:
 - System Instructions
 - The result of tool calls and the tool call parameters (other tool call details and tool definitions are always captured).
 
-When tool arguments are captured on spans, ``gen_ai.tool.call.arguments``
-uses the shared GenAI utility's serialization of the supplied arguments
-bound by parameter name. For example, ``weather(city="Boston")`` records
-``{"city":"Boston"}``, rather than ``code.function.parameters.*`` entries.
-Omitted default arguments are not added. Variadic positional arguments are
-grouped under their parameter name as an array, and variadic keyword
-arguments as an object.
-Arguments are copied before the tool runs so later mutations do not change
-the captured input. If an argument cannot be copied, a warning is logged
-and argument capture is omitted for that call; the tool still executes.
-
 
 Configuration recording
 ***********************
