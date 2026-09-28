@@ -7,7 +7,8 @@ import json
 import logging
 from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, cast
+from dataclasses import asdict, is_dataclass
+from typing import Any
 
 from google.genai.types import (
     ToolListUnion,
@@ -46,22 +47,40 @@ def _to_otel_value(python_value):
 
 def _snapshot_tool_arguments(
     tool_function: ToolFunction,
-    args: tuple[AnyValue, ...],
-    kwargs: dict[str, AnyValue],
+    args: tuple[object, ...],
+    kwargs: dict[str, object],
 ) -> dict[str, AnyValue] | None:
     # ToolInvocation serializes at span end, after the tool may mutate its inputs.
     try:
-        return cast(
-            dict[str, AnyValue],
-            deepcopy(
-                bind_arguments(
-                    tool_function, args, kwargs, apply_defaults=False
-                )
-            ),
+        bound = deepcopy(
+            bind_arguments(tool_function, args, kwargs, apply_defaults=False)
         )
+        return {
+            name: _normalize_tool_argument(value)
+            for name, value in bound.items()
+        }
     except Exception:
         _logger.warning("Failed to snapshot tool arguments", exc_info=True)
         return None
+
+
+def _normalize_tool_argument(value: object) -> AnyValue:
+    if value is None or isinstance(value, (str, int, bool, float, bytes)):
+        return value
+    if isinstance(value, (list, tuple)):
+        return [_normalize_tool_argument(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _normalize_tool_argument(item) for key, item in value.items()
+        }
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        return _normalize_tool_argument(model_dump())
+    if is_dataclass(value) and not isinstance(value, type):
+        return _normalize_tool_argument(asdict(value))
+    if hasattr(value, "__dict__"):
+        return _normalize_tool_argument(value.__dict__)
+    return _to_otel_value(value)
 
 
 def _wrap_tool_function(
@@ -72,7 +91,7 @@ def _wrap_tool_function(
 
         @functools.wraps(tool_function)
         async def async_wrapped_function(
-            *args: AnyValue, **kwargs: AnyValue
+            *args: object, **kwargs: object
         ) -> Any:
             with telemetry_handler.tool(
                 tool_function.__name__,
@@ -94,7 +113,7 @@ def _wrap_tool_function(
     else:
 
         @functools.wraps(tool_function)
-        def wrapped_function(*args: AnyValue, **kwargs: AnyValue) -> Any:
+        def wrapped_function(*args: object, **kwargs: object) -> Any:
             with telemetry_handler.tool(
                 tool_function.__name__,
             ) as tool_invocation:
