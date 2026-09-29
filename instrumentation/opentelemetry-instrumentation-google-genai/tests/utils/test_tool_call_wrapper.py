@@ -279,6 +279,20 @@ def invoke_tool(
     return invoke
 
 
+@pytest.mark.asyncio
+async def test_arguments_are_plain_json_without_type_value_metadata(
+    invoke_tool, span_exporter
+) -> None:
+    def weather(city: str, days: int, rain: bool) -> str:
+        return "sunny"
+
+    assert await invoke_tool(weather, "Boston", days=2, rain=False) == "sunny"
+    (span,) = span_exporter.get_finished_spans()
+    raw = span.attributes[GenAI.GEN_AI_TOOL_CALL_ARGUMENTS]
+    assert type(raw) is str
+    assert raw == '{"city":"Boston","days":2,"rain":false}'
+
+
 @pytest.mark.parametrize(
     "args, kwargs, expected",
     [
