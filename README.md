@@ -30,9 +30,9 @@ All instrumentations use [opentelemetry-util-genai](./util/opentelemetry-util-ge
 
 | Instrumentation | Supported Package | Version | Status |
 | --------------- | ----------------- | ------- | ------ |
-| [opentelemetry-instrumentation-genai-claude-agent-sdk](./instrumentation/opentelemetry-instrumentation-genai-claude-agent-sdk) | claude-agent-sdk >= 0.1.14, < 1 | 1.2b0.dev | skeleton |
-| [opentelemetry-instrumentation-genai-crewai](./instrumentation/opentelemetry-instrumentation-genai-crewai) | crewai >= 1.10.1, < 2 | 1.2b0.dev | skeleton |
-| [opentelemetry-instrumentation-genai-weaviate-client](./instrumentation/opentelemetry-instrumentation-genai-weaviate-client) | weaviate-client >= 3.0.0, <5.0.0 | 1.2b0.dev | skeleton |
+| [opentelemetry-instrumentation-genai-claude-agent-sdk](./instrumentation/opentelemetry-instrumentation-genai-claude-agent-sdk) | claude-agent-sdk >= 0.1.14, < 1 | 1.3b0.dev | skeleton |
+| [opentelemetry-instrumentation-genai-crewai](./instrumentation/opentelemetry-instrumentation-genai-crewai) | crewai >= 1.10.1, < 2 | 1.3b0.dev | skeleton |
+| [opentelemetry-instrumentation-genai-weaviate-client](./instrumentation/opentelemetry-instrumentation-genai-weaviate-client) | weaviate-client >= 3.0.0, <5.0.0 | 1.3b0.dev | skeleton |
 <!-- end -->
 
 ## Contributing
