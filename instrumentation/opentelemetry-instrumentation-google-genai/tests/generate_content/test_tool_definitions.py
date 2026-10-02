@@ -109,45 +109,38 @@ async def test_tool_definition_parameters(
         logger_provider=logger_provider,
         content_capture="SPAN_ONLY" if capture_content else "NO_CONTENT",
     ):
-        with Client(
+        client = Client(
             api_key="test-key",
             vertexai=False,
             http_options=types.HttpOptions(
                 client_args={"transport": transport},
                 async_client_args={"transport": transport},
             ),
-        ) as client:
-            kwargs = {
-                "model": "gemini-2.5-flash",
-                "contents": "What is the weather in Paris?",
-                "config": (
-                    config.model_dump(exclude_none=True)
-                    if config_dict
-                    else config
-                ),
-            }
-            if asynchronous:
-                async with client.aio as async_client:
-                    if streaming:
-                        stream = (
-                            await async_client.models.generate_content_stream(
-                                **kwargs
-                            )
-                        )
-                        assert not span_exporter.get_finished_spans()
-                        responses = [chunk async for chunk in stream]
-                    else:
-                        responses = [
-                            await async_client.models.generate_content(
-                                **kwargs
-                            )
-                        ]
-            elif streaming:
-                stream = client.models.generate_content_stream(**kwargs)
+        )
+        kwargs = {
+            "model": "gemini-2.5-flash",
+            "contents": "What is the weather in Paris?",
+            "config": (
+                config.model_dump(exclude_none=True) if config_dict else config
+            ),
+        }
+        if asynchronous:
+            if streaming:
+                stream = await client.aio.models.generate_content_stream(
+                    **kwargs
+                )
                 assert not span_exporter.get_finished_spans()
-                responses = list(stream)
+                responses = [chunk async for chunk in stream]
             else:
-                responses = [client.models.generate_content(**kwargs)]
+                responses = [
+                    await client.aio.models.generate_content(**kwargs)
+                ]
+        elif streaming:
+            stream = client.models.generate_content_stream(**kwargs)
+            assert not span_exporter.get_finished_spans()
+            responses = list(stream)
+        else:
+            responses = [client.models.generate_content(**kwargs)]
 
     assert [result.text for result in responses] == ["Sunny."]
     assert declaration.model_dump(mode="json") == original_declaration
