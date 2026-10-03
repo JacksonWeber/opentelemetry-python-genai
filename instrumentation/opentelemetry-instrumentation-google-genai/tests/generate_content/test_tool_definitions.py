@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import json
 
-import httpx
 import pytest
 from google.genai import Client, types
 
@@ -34,6 +33,7 @@ _PARAMETERS = {
 }
 
 
+@pytest.mark.vcr
 @pytest.mark.parametrize(
     "parameter_fields,expected_parameters",
     [
@@ -71,20 +71,6 @@ def test_tool_definition_parameters(
     config = types.GenerateContentConfig(
         tools=[types.Tool(function_declarations=[declaration])]
     )
-    response = {
-        "candidates": [
-            {
-                "content": {"role": "model", "parts": [{"text": "Sunny."}]},
-                "finishReason": "STOP",
-            }
-        ],
-        "modelVersion": "gemini-2.5-flash",
-    }
-
-    def respond(_request: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, json=response)
-
-    transport = httpx.MockTransport(respond)
     with instrument(
         GoogleGenAiSdkInstrumentor(),
         tracer_provider=tracer_provider,
@@ -95,9 +81,6 @@ def test_tool_definition_parameters(
         client = Client(
             api_key="test-key",
             vertexai=False,
-            http_options=types.HttpOptions(
-                client_args={"transport": transport},
-            ),
         )
         result = client.models.generate_content(
             model="gemini-2.5-flash",
