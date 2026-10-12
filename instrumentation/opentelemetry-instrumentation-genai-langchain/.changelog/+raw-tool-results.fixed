@@ -1,0 +1,1 @@
+Capture raw tool return values as well as ToolMessage content when tool-result capture is enabled.

@@ -751,7 +751,7 @@ class OpenTelemetryLangChainCallbackHandler(BaseCallbackHandler):
         end_tool_call_id = getattr(output, "tool_call_id", None)
         if end_tool_call_id and not tool_invocation.tool_call_id:
             tool_invocation.tool_call_id = end_tool_call_id
-        tool_invocation.tool_result = getattr(output, "content", None)
+        tool_invocation.tool_result = getattr(output, "content", output)
         tool_invocation.stop()
         self._invocation_manager.delete_invocation_state(run_id=run_id)
 
