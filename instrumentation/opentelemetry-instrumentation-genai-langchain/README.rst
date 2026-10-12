@@ -98,15 +98,6 @@ calls nested underneath.
         }
     )
 
-Tool Results
-------------
-
-When content capture on spans is enabled (``SPAN_ONLY`` or ``SPAN_AND_EVENT``),
-tool spans record arguments and results, whether a tool returns a raw value or a
-``ToolMessage``. For a ``ToolMessage``, the captured result is its ``content``;
-raw scalar values retain their types, and dictionaries and lists are serialized
-as JSON. A ``None`` result is omitted. The value returned to the caller is unchanged.
-
 Retrieval Spans and Document Scores
 -----------------------------------
 

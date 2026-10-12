@@ -413,8 +413,8 @@ async def test_tool_invocation(
         assert isinstance(arguments, str)
         assert json.loads(arguments) == {"a": 3, "b": 4}
         captured_result = attrs[gen_ai_attributes.GEN_AI_TOOL_CALL_RESULT]
-        assert captured_result == ("12" if with_call_id else 12)
-        assert type(captured_result) is (str if with_call_id else int)
+        assert captured_result == "12"
+        assert type(captured_result) is str
     else:
         assert gen_ai_attributes.GEN_AI_TOOL_CALL_ARGUMENTS not in attrs
         assert gen_ai_attributes.GEN_AI_TOOL_CALL_RESULT not in attrs
@@ -524,6 +524,10 @@ async def test_tool_structured_arguments_and_result(
         assert isinstance(captured_result, str)
         assert json.loads(captured_arguments) == arguments
         assert json.loads(captured_result) == output
+        if with_call_id and isinstance(result.content, str):
+            assert captured_result == result.content
+        else:
+            assert captured_result == json.dumps(output, separators=(",", ":"))
     else:
         assert gen_ai_attributes.GEN_AI_TOOL_CALL_ARGUMENTS not in attrs
         assert gen_ai_attributes.GEN_AI_TOOL_CALL_RESULT not in attrs
@@ -531,10 +535,21 @@ async def test_tool_structured_arguments_and_result(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("asynchronous", [False, True], ids=["sync", "async"])
-@pytest.mark.parametrize("output", ["answer", "", 0, 1.5, False, None])
+@pytest.mark.parametrize(
+    ("output", "expected_result"),
+    [
+        ("answer", "answer"),
+        ("", ""),
+        (0, "0"),
+        (1.5, "1.5"),
+        (False, "false"),
+        (None, None),
+    ],
+)
 async def test_tool_raw_scalar_result(
     asynchronous: bool,
     output: str | float | bool | None,
+    expected_result: str | None,
     span_exporter: InMemorySpanExporter,
     content_capture: ContentCapturingMode,
     instrument_langchain: None,
@@ -556,8 +571,8 @@ async def test_tool_raw_scalar_result(
         and output is not None
     ):
         captured_result = attrs[gen_ai_attributes.GEN_AI_TOOL_CALL_RESULT]
-        assert captured_result == output
-        assert type(captured_result) is type(output)
+        assert captured_result == expected_result
+        assert type(captured_result) is str
     else:
         assert gen_ai_attributes.GEN_AI_TOOL_CALL_RESULT not in attrs
 
