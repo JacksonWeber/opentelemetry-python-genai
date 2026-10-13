@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import sys
 from typing import Any
 
 import langchain.agents
@@ -260,8 +259,4 @@ async def test_unnamed_agent_conversation_id(
     assert (
         spans["invoke_agent"].attributes[GenAI.GEN_AI_CONVERSATION_ID] == "t1"
     )
-    # LangGraph's internal async model call inherits config only on Python 3.11+.
-    if asynchronous and sys.version_info < (3, 11):
-        assert GenAI.GEN_AI_CONVERSATION_ID not in spans["chat"].attributes
-    else:
-        assert spans["chat"].attributes[GenAI.GEN_AI_CONVERSATION_ID] == "t1"
+    assert spans["chat"].attributes[GenAI.GEN_AI_CONVERSATION_ID] == "t1"
