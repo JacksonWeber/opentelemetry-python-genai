@@ -909,7 +909,7 @@ async def test_sync_and_async_execution_context(
     assert await invoke(chain, {}, asynchronous) == {}
     span = finished_span(span_exporter, "invoke_workflow MyLangGraph")
     assert span.status.status_code == StatusCode.UNSET
-    assert observed == [before if asynchronous else span.context]
+    assert observed == [span.context]
     assert trace.get_current_span().get_span_context() == before
 
 
@@ -2256,7 +2256,7 @@ def test_to_input_messages_extracts_image_part():
     assert blob.content == b"ABC"
 
 
-def test_instrumentor_routes_sync_and_async_callback_managers(
+def test_instrumentor_shares_handler_across_callback_managers(
     tracer_provider: TracerProvider,
     logger_provider: LoggerProvider,
     meter_provider: MeterProvider,
@@ -2279,7 +2279,6 @@ def test_instrumentor_routes_sync_and_async_callback_managers(
             if isinstance(h, OpenTelemetryLangChainCallbackHandler)
         ]
         assert len(sync_handlers) == 1
-        assert sync_handlers[0]._attach_to_context is True
         assert sync_handlers[0].run_inline is False
 
         acm = AsyncCallbackManager([])
@@ -2289,5 +2288,5 @@ def test_instrumentor_routes_sync_and_async_callback_managers(
             if isinstance(h, OpenTelemetryLangChainCallbackHandler)
         ]
         assert len(async_handlers) == 1
-        assert async_handlers[0]._attach_to_context is False
+        assert sync_handlers[0] is async_handlers[0]
         assert async_handlers[0].run_inline is False
