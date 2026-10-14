@@ -551,6 +551,7 @@ class InteractionsStreamWrapper(SyncStreamWrapper[InteractionSSEEvent]):
         telemetry_handler: TelemetryHandler,
     ) -> None:
         super().__init__(stream, invocation=invocation)
+        invocation.suspend()
         self._self_invocation = invocation
         self._self_telemetry_handler = telemetry_handler
         self._self_last_interaction: Interaction | None = None
@@ -583,6 +584,7 @@ class AsyncInteractionsStreamWrapper(AsyncStreamWrapper[InteractionSSEEvent]):
         telemetry_handler: TelemetryHandler,
     ) -> None:
         super().__init__(stream, invocation=invocation)
+        invocation.suspend()
         self._self_invocation = invocation
         self._self_telemetry_handler = telemetry_handler
         self._self_last_interaction: Interaction | None = None
@@ -837,6 +839,7 @@ class FetchInteractionStreamWrapper(SyncStreamWrapper[InteractionSSEEvent]):
         telemetry_handler: TelemetryHandler,
     ) -> None:
         super().__init__(stream, invocation=invocation)
+        invocation.suspend()
         self._self_invocation = invocation
         self._self_telemetry_handler = telemetry_handler
         self._self_last_interaction: Interaction | None = None
@@ -894,6 +897,7 @@ class AsyncFetchInteractionStreamWrapper(
         telemetry_handler: TelemetryHandler,
     ) -> None:
         super().__init__(stream, invocation=invocation)
+        invocation.suspend()
         self._self_invocation = invocation
         self._self_telemetry_handler = telemetry_handler
         self._self_last_interaction: Interaction | None = None
