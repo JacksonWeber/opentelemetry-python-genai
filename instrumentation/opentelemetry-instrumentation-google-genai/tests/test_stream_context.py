@@ -36,15 +36,32 @@ from opentelemetry.semconv.attributes.error_attributes import (
 from opentelemetry.test_util_genai.instrumentor import instrument
 from opentelemetry.trace import Span, StatusCode
 
+REQUIRES_INTERACTIONS = pytest.mark.skipif(
+    not _HAS_INTERACTIONS,
+    reason="Interactions are not supported in this version of google-genai",
+)
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "operation",
+    "expected_operation",
     [
-        "generate_content",
-        "interactions.create",
-        "invoke_agent",
-        "fetch_response",
+        pytest.param("generate_content", id="models.generate_content_stream"),
+        pytest.param(
+            "interactions.create",
+            id="interactions.create-model",
+            marks=REQUIRES_INTERACTIONS,
+        ),
+        pytest.param(
+            "invoke_agent",
+            id="interactions.create-agent",
+            marks=REQUIRES_INTERACTIONS,
+        ),
+        pytest.param(
+            "fetch_response",
+            id="interactions.get",
+            marks=REQUIRES_INTERACTIONS,
+        ),
     ],
 )
 @pytest.mark.parametrize("asynchronous", [False, True])
@@ -69,13 +86,10 @@ async def test_stream_context(
     logger_provider: LoggerProvider,
     span_exporter: InMemorySpanExporter,
     caplog: pytest.LogCaptureFixture,
-    operation: str,
+    expected_operation: str,
     asynchronous: bool,
     ending: str,
 ) -> None:
-    if operation != "generate_content" and not _HAS_INTERACTIONS:
-        pytest.skip("This SDK has no Interactions API")
-
     tracer = tracer_provider.get_tracer(__name__)
     sdk_span: Span | None = None
     sdk_steps: list[str] = []
@@ -86,7 +100,7 @@ async def test_stream_context(
     )
     chunk = (
         GenerateContentResponse(response_id="response-id", candidates=[])
-        if operation == "generate_content"
+        if expected_operation == "generate_content"
         else {"event_type": "content"}
     )
 
@@ -123,16 +137,16 @@ async def test_stream_context(
 
     resource_type = (
         (AsyncModels if asynchronous else Models)
-        if operation == "generate_content"
+        if expected_operation == "generate_content"
         else (
             AsyncInteractionsResource if asynchronous else InteractionsResource
         )
     )
     method_name = (
         "generate_content_stream"
-        if operation == "generate_content"
+        if expected_operation == "generate_content"
         else "get"
-        if operation == "fetch_response"
+        if expected_operation == "fetch_response"
         else "create"
     )
     original = getattr(resource_type, method_name)
@@ -172,13 +186,13 @@ async def test_stream_context(
         client = Client(api_key="test-key")
         before = context.get_current()
         api = client.aio if asynchronous else client
-        if operation == "generate_content":
+        if expected_operation == "generate_content":
             stream = api.models.generate_content_stream(
                 model="gemini-2.5-flash", contents="Hello"
             )
-        elif operation == "fetch_response":
+        elif expected_operation == "fetch_response":
             stream = api.interactions.get("response-id", stream=True)
-        elif operation == "invoke_agent":
+        elif expected_operation == "invoke_agent":
             stream = api.interactions.create(
                 agent="test-agent", input="Hello", stream=True
             )
@@ -286,7 +300,7 @@ async def test_stream_context(
     assert invocation_span.attributes is not None
     assert (
         invocation_span.attributes[gen_ai_attributes.GEN_AI_OPERATION_NAME]
-        == operation
+        == expected_operation
     )
     failed = ending not in ("drain", "empty", "close")
     assert invocation_span.status.status_code == (
