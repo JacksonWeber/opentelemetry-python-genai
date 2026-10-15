@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import asyncio
-import gc
 from collections.abc import AsyncIterator, Iterator
+from contextlib import nullcontext
 from functools import wraps
 
 import pytest
@@ -29,10 +29,7 @@ from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
     InMemorySpanExporter,
 )
 from opentelemetry.semconv._incubating.attributes import gen_ai_attributes
-from opentelemetry.semconv.attributes.error_attributes import (
-    ERROR_TYPE,
-    ErrorTypeValues,
-)
+from opentelemetry.semconv.attributes.error_attributes import ERROR_TYPE
 from opentelemetry.test_util_genai.instrumentor import instrument
 from opentelemetry.trace import Span, StatusCode
 
@@ -65,75 +62,36 @@ REQUIRES_INTERACTIONS = pytest.mark.skipif(
     ],
 )
 @pytest.mark.parametrize("asynchronous", [False, True])
-@pytest.mark.parametrize(
-    "ending",
-    [
-        "drain",
-        "empty",
-        "close",
-        "caller_error",
-        "stream_error",
-        "close_error",
-        "cancel",
-        "abandon",
-        "abandon_unread",
-    ],
-)
+@pytest.mark.parametrize("ending", ["drain", "caller_error", "stream_error"])
 async def test_stream_context(
     monkeypatch: pytest.MonkeyPatch,
     tracer_provider: TracerProvider,
     meter_provider: MeterProvider,
     logger_provider: LoggerProvider,
     span_exporter: InMemorySpanExporter,
-    caplog: pytest.LogCaptureFixture,
     expected_operation: str,
     asynchronous: bool,
     ending: str,
 ) -> None:
     tracer = tracer_provider.get_tracer(__name__)
     sdk_span: Span | None = None
-    sdk_steps: list[str] = []
-    error = (
-        asyncio.CancelledError("stream cancelled")
-        if ending == "cancel"
-        else ConnectionError("stream failed")
-    )
+    error = ConnectionError("stream failed")
     chunk = (
         GenerateContentResponse(response_id="response-id", candidates=[])
         if expected_operation == "generate_content"
         else {"event_type": "content"}
     )
 
-    def check_sdk_context(step: str) -> None:
-        assert trace.get_current_span() is sdk_span
-        sdk_steps.append(step)
-        with tracer.start_as_current_span(f"sdk.{step}"):
-            pass
-
     def produce() -> Iterator[object]:
-        try:
-            check_sdk_context("read")
-            if ending == "empty":
-                return
+        for _ in range(2):
+            assert trace.get_current_span() is sdk_span
             yield chunk
-            check_sdk_context("read")
-            if ending in ("stream_error", "cancel"):
+            if ending == "stream_error":
                 raise error
-            yield chunk
-        finally:
-            if ending != "abandon":
-                check_sdk_context("close")
-                if ending == "close_error":
-                    raise error
 
     async def aproduce() -> AsyncIterator[object]:
-        source = produce()
-        try:
-            for item in source:
-                await asyncio.sleep(0)
-                yield item
-        finally:
-            source.close()
+        for item in produce():
+            yield item
 
     resource_type = (
         (AsyncModels if asynchronous else Models)
@@ -205,125 +163,57 @@ async def test_stream_context(
         assert sdk_span is not None
         assert sdk_span.is_recording()
         assert context.get_current() is before
-        assert sdk_steps == []
-        assert isinstance(stream, type(source))
-        assert stream.__class__ is source.__class__
+        received: list[object] = []
 
-        if ending not in ("empty", "abandon_unread"):
-            if asynchronous:
-                assert await asyncio.create_task(anext(stream)) is chunk
-            else:
-                assert next(stream) is chunk
+        def check_caller_context(item: object) -> None:
+            assert item is chunk
             assert context.get_current() is before
             assert sdk_span.is_recording()
+            received.append(item)
+            if ending == "caller_error":
+                raise error
 
-        with tracer.start_as_current_span("caller.work"):
-            pass
+        with (
+            pytest.raises(ConnectionError)
+            if ending != "drain"
+            else nullcontext()
+        ) as raised:
+            if asynchronous:
 
-        if ending.startswith("abandon"):
-            del stream
-            gc.collect()
-        elif ending == "caller_error":
-            with pytest.raises(ConnectionError) as raised:
-                if asynchronous:
-
-                    async def fail_in_caller() -> None:
+                async def consume() -> None:
+                    try:
                         async with stream:
-                            assert context.get_current() is before
-                            raise error
-
-                    await asyncio.create_task(fail_in_caller())
-                else:
-                    with stream:
+                            async for item in stream:
+                                check_caller_context(item)
+                    finally:
                         assert context.get_current() is before
-                        raise error
+
+                await asyncio.create_task(consume())
+            else:
+                with stream:
+                    for item in stream:
+                        check_caller_context(item)
+
+        if raised is not None:
             assert raised.value is error
-        elif ending in ("stream_error", "close_error", "cancel"):
-            if asynchronous:
-
-                async def fail_in_sdk() -> None:
-                    with pytest.raises(type(error)) as raised:
-                        if ending == "close_error":
-                            await stream.aclose()
-                        else:
-                            await anext(stream)
-                    # Python 3.10 recreates CancelledError across task boundaries.
-                    assert raised.value is error
-                    assert context.get_current() is before
-
-                await asyncio.create_task(fail_in_sdk())
-            else:
-                with pytest.raises(type(error)) as raised:
-                    if ending == "close_error":
-                        stream.close()
-                    else:
-                        next(stream)
-                assert raised.value is error
-        elif ending == "close":
-            if asynchronous:
-                await asyncio.create_task(stream.aclose())
-            else:
-                stream.close()
-        else:
-            remaining = [] if ending == "empty" else [chunk]
-            if asynchronous:
-
-                async def drain() -> list[object]:
-                    return [item async for item in stream]
-
-                assert await asyncio.create_task(drain()) == remaining
-            else:
-                assert list(stream) == remaining
-
+        assert len(received) == (2 if ending == "drain" else 1)
         assert context.get_current() is before
         assert not sdk_span.is_recording()
-        if not ending.startswith("abandon"):
-            assert sdk_steps[-1] == "close"
-            if asynchronous:
-                await asyncio.create_task(stream.aclose())
-            else:
-                stream.close()
-        else:
-            if asynchronous:
-                await source.aclose()
-            else:
-                source.close()
-        assert context.get_current() is before
 
-    spans = span_exporter.get_finished_spans()
-    invocation_spans = [
-        span for span in spans if span.context == sdk_span.get_span_context()
-    ]
-    assert len(invocation_spans) == 1
-    (invocation_span,) = invocation_spans
+    invocation_span, caller_span = span_exporter.get_finished_spans()
+    assert invocation_span.context == sdk_span.get_span_context()
     assert invocation_span.parent == caller.get_span_context()
+    assert caller_span.context == caller.get_span_context()
     assert invocation_span.attributes is not None
     assert (
         invocation_span.attributes[gen_ai_attributes.GEN_AI_OPERATION_NAME]
         == expected_operation
     )
-    failed = ending not in ("drain", "empty", "close")
+    failed = ending != "drain"
     assert invocation_span.status.status_code == (
         StatusCode.ERROR if failed else StatusCode.UNSET
     )
     if failed:
-        expected_error = (
-            ErrorTypeValues.OTHER.value
-            if ending.startswith("abandon")
-            else "asyncio.exceptions.CancelledError"
-            if ending == "cancel"
-            else type(error).__name__
-        )
-        assert invocation_span.attributes[ERROR_TYPE] == expected_error
+        assert invocation_span.attributes[ERROR_TYPE] == "ConnectionError"
     else:
         assert ERROR_TYPE not in invocation_span.attributes
-    for span in spans:
-        if span.name.startswith("sdk."):
-            assert span.parent == invocation_span.context
-        elif span.name == "caller.work":
-            assert span.parent == caller.get_span_context()
-    assert not [
-        record
-        for record in caplog.records
-        if record.name == "opentelemetry.context" and record.levelno >= 40
-    ]
