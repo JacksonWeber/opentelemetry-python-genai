@@ -2331,100 +2331,60 @@ def _parent_and_attached_invocation():
     return parent, token, invocation
 
 
-@pytest.mark.parametrize(
-    "ending", ["exhaust", "error", "caller_error", "close"]
-)
-def test_sync_wrapper_suspends_invocation(ending: str) -> None:
+@pytest.mark.parametrize("ending", ["exhaust", "error", "close"])
+def test_default_execution_context_leaves_unsuspended_invocation_alone(ending):
+    """An instrumentation that never calls suspend() must still end with the parent current."""
     parent, token, invocation = _parent_and_attached_invocation()
-    error = RuntimeError("boom")
-    cleanup_spans = []
     try:
 
-        def chunks() -> Iterator[str]:
-            try:
-                assert get_current_span() is invocation.span
-                yield "a"
-                assert get_current_span() is invocation.span
-                if ending == "error":
-                    raise error
-                yield "b"
-            finally:
-                cleanup_spans.append(get_current_span())
+        def chunks():
+            yield "a"
+            if ending == "error":
+                raise RuntimeError("boom")
+            yield "b"
 
         wrapper = _TestSyncStreamWrapper(chunks(), invocation)
-        assert get_current_span() is parent
-        assert invocation.span.is_recording()
-        assert next(wrapper) == "a"
-        assert get_current_span() is parent
-        assert invocation.span.is_recording()
         if ending == "exhaust":
-            assert list(wrapper) == ["b"]
+            assert list(wrapper) == ["a", "b"]
         elif ending == "error":
-            with pytest.raises(RuntimeError) as raised:
+            with pytest.raises(RuntimeError):
                 list(wrapper)
-            assert raised.value is error
-        elif ending == "caller_error":
-            with pytest.raises(RuntimeError) as raised, wrapper:
-                raise error
-            assert raised.value is error
         else:
+            assert next(iter(wrapper)) == "a"
             wrapper.close()
-        assert cleanup_spans == [invocation.span]
         assert wrapper._self_finalized
-        assert not invocation.span.is_recording()
         assert get_current_span() is parent
     finally:
-        invocation.stop()
         detach(token)
         parent.end()
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "ending", ["exhaust", "error", "caller_error", "close"]
-)
-async def test_async_wrapper_suspends_invocation(ending: str) -> None:
+@pytest.mark.parametrize("ending", ["exhaust", "error", "close"])
+async def test_default_execution_context_leaves_unsuspended_invocation_alone_async(
+    ending,
+):
     parent, token, invocation = _parent_and_attached_invocation()
-    error = RuntimeError("boom")
-    cleanup_spans = []
     try:
 
-        async def chunks() -> AsyncGenerator[str]:
-            try:
-                assert get_current_span() is invocation.span
-                yield "a"
-                assert get_current_span() is invocation.span
-                if ending == "error":
-                    raise error
-                yield "b"
-            finally:
-                cleanup_spans.append(get_current_span())
+        async def chunks():
+            yield "a"
+            if ending == "error":
+                raise RuntimeError("boom")
+            yield "b"
 
         wrapper = _TestAsyncStreamWrapper(chunks(), invocation)
-        assert get_current_span() is parent
-        assert invocation.span.is_recording()
-        assert await wrapper.__anext__() == "a"
-        assert get_current_span() is parent
-        assert invocation.span.is_recording()
         if ending == "exhaust":
-            assert [c async for c in wrapper] == ["b"]
+            assert [c async for c in wrapper] == ["a", "b"]
         elif ending == "error":
-            with pytest.raises(RuntimeError) as raised:
+            with pytest.raises(RuntimeError):
                 _ = [c async for c in wrapper]
-            assert raised.value is error
-        elif ending == "caller_error":
-            with pytest.raises(RuntimeError) as raised:
-                async with wrapper:
-                    raise error
-            assert raised.value is error
         else:
+            assert await wrapper.__anext__() == "a"
             await wrapper.aclose()
-        assert cleanup_spans == [invocation.span]
         assert wrapper._self_finalized
-        assert not invocation.span.is_recording()
         assert get_current_span() is parent
     finally:
-        invocation.stop()
         detach(token)
         parent.end()
 

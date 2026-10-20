@@ -716,7 +716,7 @@ def _create_instrumented_generate_content_stream(
                             )
                         )[0]
                     )
-            return GenerateContentStreamWrapper(
+            stream = GenerateContentStreamWrapper(
                 wrapped(
                     model=model,
                     contents=contents,
@@ -727,6 +727,8 @@ def _create_instrumented_generate_content_stream(
                 invocation,
                 telemetry_handler,
             )
+            invocation.suspend()
+            return stream
 
         return _execute(*args, **kwargs)
 
@@ -871,7 +873,7 @@ def _create_instrumented_async_generate_content_stream(  # type: ignore
                             )
                         )[0]
                     )
-            return AsyncGenerateContentStreamWrapper(
+            stream = AsyncGenerateContentStreamWrapper(
                 await wrapped(
                     model=model,
                     contents=contents,
@@ -882,6 +884,8 @@ def _create_instrumented_async_generate_content_stream(  # type: ignore
                 invocation,
                 telemetry_handler,
             )
+            invocation.suspend()
+            return stream
 
         return await _execute(*args, **kwargs)
 

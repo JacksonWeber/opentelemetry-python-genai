@@ -64,7 +64,7 @@ pytestmark = [
         ],
     ),
     pytest.mark.parametrize(
-        "ending", ["drain", "caller_error", "stream_error"]
+        "ending", ["drain", "close", "caller_error", "stream_error"]
     ),
 ]
 
@@ -85,7 +85,7 @@ def _assert_finished_spans(
         invocation_span.attributes[gen_ai_attributes.GEN_AI_OPERATION_NAME]
         == expected_operation
     )
-    failed = ending != "drain"
+    failed = ending in ("caller_error", "stream_error")
     assert invocation_span.status.status_code == (
         StatusCode.ERROR if failed else StatusCode.UNSET
     )
@@ -106,6 +106,7 @@ def test_sync_stream_context(
 ) -> None:
     tracer = tracer_provider.get_tracer(__name__)
     sdk_span: Span | None = None
+    cleanup_spans: list[Span] = []
     error = ConnectionError("stream failed")
     chunk = (
         GenerateContentResponse(response_id="response-id", candidates=[])
@@ -114,11 +115,14 @@ def test_sync_stream_context(
     )
 
     def produce() -> Iterator[object]:
-        for _ in range(2):
-            assert trace.get_current_span() is sdk_span
-            yield chunk
-            if ending == "stream_error":
-                raise error
+        try:
+            for _ in range(2):
+                assert trace.get_current_span() is sdk_span
+                yield chunk
+                if ending == "stream_error":
+                    raise error
+        finally:
+            cleanup_spans.append(trace.get_current_span())
 
     resource_type = (
         Models
@@ -177,7 +181,7 @@ def test_sync_stream_context(
 
         with (
             pytest.raises(ConnectionError)
-            if ending != "drain"
+            if ending in ("caller_error", "stream_error")
             else nullcontext()
         ) as raised:
             with stream:
@@ -188,10 +192,13 @@ def test_sync_stream_context(
                     received.append(item)
                     if ending == "caller_error":
                         raise error
+                    if ending == "close":
+                        break
 
         if raised is not None:
             assert raised.value is error
         assert len(received) == (2 if ending == "drain" else 1)
+        assert cleanup_spans == [sdk_span]
         assert context.get_current() is before
         assert not sdk_span.is_recording()
 
@@ -212,6 +219,7 @@ async def test_async_stream_context(
 ) -> None:
     tracer = tracer_provider.get_tracer(__name__)
     sdk_span: Span | None = None
+    cleanup_spans: list[Span] = []
     error = ConnectionError("stream failed")
     chunk = (
         GenerateContentResponse(response_id="response-id", candidates=[])
@@ -220,11 +228,14 @@ async def test_async_stream_context(
     )
 
     async def produce() -> AsyncIterator[object]:
-        for _ in range(2):
-            assert trace.get_current_span() is sdk_span
-            yield chunk
-            if ending == "stream_error":
-                raise error
+        try:
+            for _ in range(2):
+                assert trace.get_current_span() is sdk_span
+                yield chunk
+                if ending == "stream_error":
+                    raise error
+        finally:
+            cleanup_spans.append(trace.get_current_span())
 
     resource_type = (
         AsyncModels
@@ -293,12 +304,14 @@ async def test_async_stream_context(
                         received.append(item)
                         if ending == "caller_error":
                             raise error
+                        if ending == "close":
+                            break
             finally:
                 assert context.get_current() is before
 
         with (
             pytest.raises(ConnectionError)
-            if ending != "drain"
+            if ending in ("caller_error", "stream_error")
             else nullcontext()
         ) as raised:
             await asyncio.create_task(consume())
@@ -306,6 +319,7 @@ async def test_async_stream_context(
         if raised is not None:
             assert raised.value is error
         assert len(received) == (2 if ending == "drain" else 1)
+        assert cleanup_spans == [sdk_span]
         assert context.get_current() is before
         assert not sdk_span.is_recording()
 
